@@ -1,0 +1,28 @@
+========================================================================
+LIFE OS 1.0 — SIMPLE 1-CLICK NETLIFY DEPLOYMENT GUIDE
+========================================================================
+
+Follow these 7 simple steps to deploy your private Life OS web application for FREE:
+
+1. Open your web browser and go to:
+   https://app.netlify.com/drop
+
+2. Log in or create a FREE Netlify account (takes 30 seconds).
+
+3. Open File Explorer on your computer and locate this "deploy" folder:
+   c:\Users\alkam\life tracker App\deploy
+
+4. Drag the "deploy" folder and drop it into the box on the Netlify Drop webpage.
+
+5. Netlify will build your site in ~5 seconds and give you a live link:
+   (Example: https://your-life-os.netlify.app)
+
+6. Open that live link on your iPhone or Android phone.
+
+7. Tap your browser menu and choose "Add to Home Screen" to install it as a mobile app!
+
+========================================================================
+NOTE ON PRIVACY & LOCAL STORAGE:
+All data logged in this application is saved locally in your phone's browser
+(LocalStorage). Your personal data will NOT be visible to anyone else.
+========================================================================

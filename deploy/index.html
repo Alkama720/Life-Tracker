@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Life OS — Executive Command Center, CRM & Behavioral System</title>
+  <meta name="description" content="Private-first Personal Life Operating System for B2B Sales, CRM, Client Payments, Google Calendar/Tasks Integration, Health, and Finance.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Mobile Drawer Backdrop Overlay -->
+  <div class="mobile-drawer-overlay" id="mobile-overlay" onclick="toggleMobileDrawer(false)"></div>
+
+  <!-- Sidebar Navigation (Desktop + Mobile Drawer) -->
+  <aside class="app-sidebar" id="app-sidebar">
+    <div class="brand-header">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">Life OS 1.0</div>
+        <div class="brand-subtitle">Executive Command Center</div>
+      </div>
+    </div>
+
+    <nav class="nav-menu" id="nav-menu">
+      <a class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Dashboard</span>
+      </a>
+      <a class="nav-item" data-view="crm">
+        <span class="nav-icon">📇</span>
+        <span class="nav-text">CRM & Client Hub</span>
+      </a>
+      <a class="nav-item" data-view="calendar">
+        <span class="nav-icon">🗓️</span>
+        <span class="nav-text">Calendar & Tasks</span>
+      </a>
+      <a class="nav-item" data-view="sales">
+        <span class="nav-icon">💼</span>
+        <span class="nav-text">B2B Sales Engine</span>
+      </a>
+      <a class="nav-item" data-view="finance">
+        <span class="nav-icon">💰</span>
+        <span class="nav-text">Financial Ledger</span>
+      </a>
+      <a class="nav-item" data-view="priorities">
+        <span class="nav-icon">🎯</span>
+        <span class="nav-text">Priorities & Goals</span>
+      </a>
+      <a class="nav-item" data-view="schedule">
+        <span class="nav-icon">📅</span>
+        <span class="nav-text">Daily & Weekly</span>
+      </a>
+      <a class="nav-item" data-view="habits">
+        <span class="nav-icon">🔥</span>
+        <span class="nav-text">Habits & Substances</span>
+      </a>
+      <a class="nav-item" data-view="health">
+        <span class="nav-icon">🩺</span>
+        <span class="nav-text">Health & Scalp Log</span>
+      </a>
+      <a class="nav-item" data-view="screentime">
+        <span class="nav-icon">⏳</span>
+        <span class="nav-text">Screen Time Recovery</span>
+      </a>
+      <a class="nav-item" data-view="youtube">
+        <span class="nav-icon">🎬</span>
+        <span class="nav-text">Faceless YouTube</span>
+      </a>
+      <a class="nav-item" data-view="ai">
+        <span class="nav-icon">🤖</span>
+        <span class="nav-text">Practical AI Log</span>
+      </a>
+      <a class="nav-item" data-view="college">
+        <span class="nav-icon">🎓</span>
+        <span class="nav-text">College Tasks</span>
+      </a>
+      <a class="nav-item" data-view="reflection">
+        <span class="nav-icon">📝</span>
+        <span class="nav-text">Reflection & Scoreboard</span>
+      </a>
+      <a class="nav-item" data-view="settings">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-text">Privacy & Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">SA</div>
+      <div class="user-info">
+        <div class="user-name">Starz AI Sales Lead</div>
+        <div class="user-role">Mumbai, IN | Base ₹20k</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main View Container -->
+  <main class="app-main">
+    <header class="top-bar">
+      <div class="top-left">
+        <button class="mobile-toggle-btn" onclick="toggleMobileDrawer()">☰</button>
+        <div class="top-title" id="page-title">Executive Dashboard</div>
+      </div>
+
+      <div class="top-actions">
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle-btn" id="theme-btn" onclick="window.toggleTheme()">
+          <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+        </button>
+        <button class="btn btn-secondary" onclick="window.printPDF()">📄 Export PDF</button>
+        <button class="btn btn-primary" onclick="appState.quickLogModal()">+ Log Entry</button>
+      </div>
+    </header>
+
+    <div class="content-container" id="view-content">
+      <!-- Views rendered dynamically by JS -->
+    </div>
+  </main>
+
+  <!-- Mobile Sticky Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <a class="mobile-nav-btn active" data-view="dashboard">
+      <span class="mobile-nav-icon">📊</span>
+      <span>Home</span>
+    </a>
+    <a class="mobile-nav-btn" data-view="crm">
+      <span class="mobile-nav-icon">📇</span>
+      <span>CRM</span>
+    </a>
+    <a class="mobile-nav-btn" data-view="calendar">
+      <span class="mobile-nav-icon">🗓️</span>
+      <span>Calendar</span>
+    </a>
+    <a class="mobile-nav-btn" data-view="finance">
+      <span class="mobile-nav-icon">💰</span>
+      <span>Finance</span>
+    </a>
+    <a class="mobile-nav-btn" onclick="toggleMobileDrawer(true)">
+      <span class="mobile-nav-icon">☰</span>
+      <span>Menu</span>
+    </a>
+  </nav>
+
+  <script src="js/app.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/analytics.js"></script>
+</body>
+</html>

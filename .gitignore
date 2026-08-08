@@ -1,0 +1,14 @@
+# Operating System & IDE Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Gemini / Antigravity Logs & Scratchpad Files
+.system_generated/
+.tempmediaStorage/
+scratch/
+*.log
+
+# Node Modules (if any)
+node_modules/

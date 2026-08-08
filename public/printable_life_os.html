@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Operating System — Printable & Fillable Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0F172A;
+      --secondary: #1E293B;
+      --accent: #0284C7;
+      --bg-light: #F8FAFC;
+      --text-dark: #0F172A;
+      --text-muted: #64748B;
+      --border: #CBD5E1;
+      --alert: #DC2626;
+    }
+
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+    body { background-color: #E2E8F0; padding: 20px; color: var(--text-dark); }
+    
+    .page-container {
+      width: 210mm;
+      min-height: 297mm;
+      background: #FFFFFF;
+      margin: 0 auto 20px auto;
+      padding: 12mm 15mm;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    /* Header Banner */
+    .header { border-bottom: 2px solid var(--accent); padding-bottom: 8px; margin-bottom: 12px; }
+    .header h1 { font-size: 18pt; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: -0.5px; }
+    .header-sub { font-size: 8.5pt; font-weight: 600; color: var(--accent); display: flex; justify-content: space-between; margin-top: 2px; }
+
+    .banner {
+      background: var(--primary);
+      color: white;
+      padding: 5px 8px;
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .banner span.sub { font-weight: 400; font-size: 7.5pt; color: #94A3B8; font-style: italic; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8pt; }
+    th, td { border: 1px solid var(--border); padding: 4px 6px; text-align: left; vertical-align: top; }
+    th { background: var(--secondary); color: white; font-weight: 600; text-transform: uppercase; font-size: 7.5pt; }
+    tr:nth-child(even) td { background-color: var(--bg-light); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    /* Fillable inputs for printing/interactive typing */
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 8pt;
+      color: var(--primary);
+      outline: none;
+    }
+    textarea { resize: vertical; min-height: 24px; }
+    input[type="checkbox"] { accent-color: var(--accent); transform: scale(1.1); cursor: pointer; }
+
+    .badge {
+      display: inline-block;
+      padding: 1px 5px;
+      font-size: 7pt;
+      font-weight: 700;
+      border-radius: 3px;
+      background: #E0F2FE;
+      color: #0369A1;
+    }
+    .disclaimer { font-size: 7.5pt; color: var(--text-muted); font-style: italic; margin-bottom: 6px; border-left: 2px solid var(--accent); padding-left: 6px; }
+
+    .print-bar {
+      max-width: 210mm;
+      margin: 0 auto 15px auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--primary);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+    }
+    .print-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .print-bar { display: none; }
+      .page-container {
+        box-shadow: none;
+        margin: 0;
+        width: 100%;
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <div><strong>Life Operating System (Life OS) — Printable & Fillable A4 Document</strong></div>
+    <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+  </div>
+
+  <!-- PAGE 1: COVER & VISION -->
+  <div class="page-container">
+    <div class="header">
+      <h1>Personal Life Operating System</h1>
+      <div class="header-sub">
+        <span>EXECUTIVE COMMAND CENTER & BEHAVIORAL TRACKER — VER 1.0</span>
+        <span>CONFIDENTIAL & PRIVATE</span>
+      </div>
+    </div>
+
+    <table>
+      <tr style="background: var(--bg-light);">
+        <td><strong>OPERATOR:</strong> 21 y/o | Mumbai, India</td>
+        <td><strong>ROLE:</strong> B2B Sales / Business Dev @ Starz AI</td>
+        <td><strong>BASE SALARY:</strong> ₹20,000 / month</td>
+      </tr>
+      <tr style="background: var(--bg-light);">
+        <td><strong>WORK WINDOW:</strong> Mon–Sat (10:30 AM – 7:00 PM)</td>
+        <td><strong>COMMUTE:</strong> 09:30 AM Depart | 20:00 PM Arrival</td>
+        <td><strong>SLEEP TARGET:</strong> 12:00 AM Sleep – 08:00 AM Wake</td>
+      </tr>
+    </table>
+
+    <div class="banner">
+      LAYER 1: VISION, IDENTITY & CORE OPERATING RULES
+      <span class="sub">Philosophy: Systems Over Motivation</span>
+    </div>
+
+    <div class="grid-2" style="margin-bottom: 10px;">
+      <div style="border: 1px solid var(--border); padding: 8px; background: white;">
+        <h4 style="font-size: 8.5pt; color: var(--secondary); margin-bottom: 4px;">CORE OPERATING PRINCIPLES</h4>
+        <ol style="font-size: 7.5pt; padding-left: 14px; line-height: 1.35; color: var(--text-dark);">
+          <li><strong>Consistency over intensity:</strong> Daily 1% actions compound over time.</li>
+          <li><strong>Progress over perfection:</strong> Flawless execution is a trap. Track reality.</li>
+          <li><strong>Systems over motivation:</strong> Motivation fails; routines enforce behavior.</li>
+          <li><strong>Track reality, not intentions:</strong> Record exact numbers, not desires.</li>
+          <li><strong>Protect health & sleep:</strong> Non-negotiable foundation for sales & income.</li>
+          <li><strong>Single-habit focus:</strong> Never attempt 10 habit changes simultaneously.</li>
+          <li><strong>No self-deception:</strong> Review failures ruthlessly without shame.</li>
+          <li><strong>Income-producing focus:</strong> Prioritize sales mastery over low-leverage tasks.</li>
+        </ol>
+      </div>
+
+      <div style="border: 1px solid var(--border); padding: 8px; background: white;">
+        <h4 style="font-size: 8.5pt; color: var(--secondary); margin-bottom: 4px;">12-MONTH IDENTITY & CONSTRAINTS</h4>
+        <div style="font-size: 7.5pt; line-height: 1.35; color: var(--text-dark);">
+          <p><strong>12-Month Target Identity:</strong> Elite B2B Sales Performer, Financially Disciplined, Physical Health Stable, Content Builder.</p>
+          <p style="margin-top: 4px;"><strong>Primary Bottlenecks:</strong></p>
+          <ul style="padding-left: 12px; color: var(--alert);">
+            <li>3-4 hrs/day lost to scrolling & gaming.</li>
+            <li>Cigarette count (6+/day) & THC drag.</li>
+            <li>Restricted monthly budget (₹20k base).</li>
+          </ul>
+          <p style="margin-top: 4px;"><strong>Primary Opportunities:</strong></p>
+          <ul style="padding-left: 12px; color: var(--accent);">
+            <li>High-commission B2B deals at Starz AI.</li>
+            <li>AI automation skills (no Python required).</li>
+            <li>Faceless YouTube side-income engine.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="banner">
+      LAYER 2 & 3: STRICT PRIORITY HIERARCHY & GOAL MATRIX
+      <span class="sub">Rule: Higher Priority Wins Conflicts</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 25px;">P#</th>
+          <th style="width: 80px;">Priority Area</th>
+          <th>Why It Matters</th>
+          <th>Desired Outcome</th>
+          <th>Current Bottleneck</th>
+          <th>Next Action</th>
+          <th style="width: 50px;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td><strong>Health</strong></td><td>Foundation for energy & focus</td><td>Consistent exercise, reduce smoking, hair care</td><td style="color:var(--alert)">No gym, smoking 6+/day, high screen time</td><td>30-min morning movement</td><td><span class="badge">ACTIVE</span></td></tr>
+        <tr><td><strong>2</strong></td><td><strong>Money</strong></td><td>Achieve financial independence</td><td>Increase monthly income, build emergency fund</td><td style="color:var(--alert)">Fixed ₹20k salary, limited savings</td><td>Drive Starz AI sales commissions</td><td><span class="badge">ACTIVE</span></td></tr>
+        <tr><td><strong>3</strong></td><td><strong>Sales Mastery</strong></td><td>Primary income growth vehicle</td><td>Become top B2B closer at Starz AI</td><td style="color:var(--alert)">Objection handling & call volume consistency</td><td>Log 30+ daily calls & evening review</td><td><span class="badge">ACTIVE</span></td></tr>
+        <tr><td><strong>4</strong></td><td><strong>Discipline</strong></td><td>Bridge from intention to action</td><td>Zero phone scroll during deep work</td><td style="color:var(--alert)">3-4 hrs daily screen/gaming distraction</td><td>Enforce 2-hr phone shutdown blocks</td><td><span class="badge">ACTIVE</span></td></tr>
+        <tr><td><strong>5</strong></td><td><strong>Peace of Mind</strong></td><td>Sustained focus without burnout</td><td>Calm focus, clean evening wind-down</td><td style="color:var(--alert)">Substance dependency & screen overstimulation</td><td>Nightly 3-min reflection journal</td><td><span class="badge">ACTIVE</span></td></tr>
+        <tr><td><strong>6</strong></td><td><strong>AI Skills</strong></td><td>Leverage multiplier for sales</td><td>Master practical AI tools for B2B workflow</td><td style="color:var(--alert)">Time scarcity & Python confusion</td><td>30-min Tue/Thu practical AI tool test</td><td><span class="badge">ACTIVE</span></td></tr>
+        <tr><td><strong>7</strong></td><td><strong>Faceless YT</strong></td><td>Scalable secondary cashflow asset</td><td>Publish 2 sustainable videos / month</td><td style="color:var(--alert)">Time constraints & scripting friction</td><td>Wed/Fri script & production block</td><td><span class="badge">NOT STARTED</span></td></tr>
+        <tr><td><strong>8</strong></td><td><strong>Content Creation</strong></td><td>Personal authority & distribution</td><td>Repurpose sales/AI insights into posts</td><td style="color:var(--alert)">Prioritizing sales & health first</td><td>Batch 1 post on Sunday session</td><td><span class="badge">PAUSED</span></td></tr>
+        <tr><td><strong>9</strong></td><td><strong>College</strong></td><td>Formal qualification completion</td><td>Maintain passing status without burnout</td><td style="color:var(--alert)">Time conflict with Starz AI work hours</td><td>Lightweight exam & assignment log</td><td><span class="badge">ACTIVE</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 2: DAILY & WEEKLY SYSTEM -->
+  <div class="page-container">
+    <div class="header">
+      <h1>Daily Execution & Weekly Theme Planner</h1>
+      <div class="header-sub">
+        <span>LAYER 4 & PART 7: ROTATIONAL FOCUS ENGINE</span>
+        <span>PREVENTING MULTI-GOAL BURNOUT</span>
+      </div>
+    </div>
+
+    <div class="banner">
+      LAYER 4: DAILY EXECUTION TIMELINE
+      <span class="sub">Default Schedule & Rotational Focus</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 110px;">Time Window</th>
+          <th style="width: 140px;">Activity Block</th>
+          <th>Core Objective & Enforcement Rules</th>
+          <th style="width: 40px;">Check</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>08:00 – 08:30 AM</td><td><strong>Morning Routine</strong></td><td>Wake strictly at 08:00 AM. 500ml water. Zero social media / phone scrolling.</td><td><input type="checkbox"></td></tr>
+        <tr><td>08:30 – 09:00 AM</td><td><strong>Movement / Exercise</strong></td><td>Bodyweight routine (pushups, squats, stretching) / light jog. Protect health.</td><td><input type="checkbox"></td></tr>
+        <tr><td>09:00 – 09:30 AM</td><td><strong>Breakfast & Prep</strong></td><td>Nutritious meal, shower, get ready for commute.</td><td><input type="checkbox"></td></tr>
+        <tr><td>09:30 – 10:30 AM</td><td><strong>Commute to Starz AI</strong></td><td>Listen to sales podcast / objection audio / reading. Productive commute.</td><td><input type="checkbox"></td></tr>
+        <tr><td>10:30 AM – 07:00 PM</td><td><strong>Starz AI Work Block</strong></td><td>Core B2B Sales Execution: Prospecting, Cold Calls, Meetings, Demos, Follow-ups.</td><td><input type="checkbox"></td></tr>
+        <tr><td>07:00 – 08:00 PM</td><td><strong>Commute Home</strong></td><td>Wind down from work day, decompress, audio learning.</td><td><input type="checkbox"></td></tr>
+        <tr><td>08:00 – 08:45 PM</td><td><strong>Dinner & Recovery</strong></td><td>Meal with family/solitude. Zero work stress.</td><td><input type="checkbox"></td></tr>
+        <tr><td>08:45 – 09:30 PM</td><td><strong>ROTATING EVENING BLOCK</strong></td><td>Execute ONLY today's assigned theme (Sales / AI / YouTube / Review).</td><td><input type="checkbox"></td></tr>
+        <tr><td>09:30 – 10:00 PM</td><td><strong>Night Movement / Walk</strong></td><td>30-minute evening walk. Scalp/hair routine application.</td><td><input type="checkbox"></td></tr>
+        <tr><td>10:00 – 10:30 PM</td><td><strong>Wind Down</strong></td><td>Screen shutdown. Prepare clothes & tasks for tomorrow.</td><td><input type="checkbox"></td></tr>
+        <tr><td>10:30 – 11:00 PM</td><td><strong>3-Min Journal & Review</strong></td><td>Log daily metrics (cigs, screen time, sales), answer 4 reflection questions.</td><td><input type="checkbox"></td></tr>
+        <tr><td>11:00 – 12:00 AM</td><td><strong>Reading & Sleep Prep</strong></td><td>Read physical book / sales guide. In bed by 11:45 PM. Lights out at 12:00 AM.</td><td><input type="checkbox"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="banner">
+      PART 7: MON–SUN ROTATING EVENING THEME PLANNER
+      <span class="sub">Rotational Evening Focus (08:45–09:30 PM)</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 80px;">Day</th>
+          <th>Primary Evening Theme</th>
+          <th>Specific Deliverable / Focus</th>
+          <th style="width: 100px;">Sales Target</th>
+          <th style="width: 90px;">Health Focus</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>MONDAY</strong></td><td>Sales Outreach Focus</td><td>Review lead list, craft customized B2B pitch scripts</td><td>30 Calls / 5 Leads</td><td>Morning Movement</td></tr>
+        <tr><td><strong>TUESDAY</strong></td><td>Objection Handling + AI</td><td>Practice pitch responses; test ChatGPT sales templates</td><td>30 Calls / 2 Meets</td><td>Hair Care Routine</td></tr>
+        <tr><td><strong>WEDNESDAY</strong></td><td>Prospecting + YT Scripting</td><td>Mine LinkedIn decision makers + outline 1 YT video</td><td>30 Calls / 5 Leads</td><td>Morning Exercise</td></tr>
+        <tr><td><strong>THURSDAY</strong></td><td>Sales Review + AI Auto</td><td>Listen to call recordings; build email follow-up automations</td><td>30 Calls / 2 Meets</td><td>Hair Care Routine</td></tr>
+        <tr><td><strong>FRIDAY</strong></td><td>Closing Skills + YT Prod</td><td>Roleplay closing objection handles; edit voiceover/visuals</td><td>Closing Follow-ups</td><td>30-min Night Walk</td></tr>
+        <tr><td><strong>SATURDAY</strong></td><td>Pipeline Review & CRM</td><td>Update pipeline stages, log metrics, clean CRM contacts</td><td>Weekly Review</td><td>Full Exercise</td></tr>
+        <tr><td><strong>SUNDAY</strong></td><td>Recovery & Planning</td><td>Complete 20-min Weekly Review, meal prep, batch YT assets</td><td>Zero Calls</td><td>Rest & Reset</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 3: HABIT & SALES TRACKER -->
+  <div class="page-container">
+    <div class="header">
+      <h1>Weekly Habit, Substance & Sales Command Center</h1>
+      <div class="header-sub">
+        <span>PART 8, 9 & 12: NUMERIC BEHAVIOR & REVENUE TRACKING</span>
+        <span>STARZ AI B2B DASHBOARD</span>
+      </div>
+    </div>
+
+    <div class="banner">
+      PART 8 & 12: WEEKLY HABIT & SUBSTANCE LOG
+      <span class="sub">Numeric Entries for Trend Analysis</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Metric / Habit</th>
+          <th style="width: 50px;">Target</th>
+          <th style="width: 32px;">Mon</th>
+          <th style="width: 32px;">Tue</th>
+          <th style="width: 32px;">Wed</th>
+          <th style="width: 32px;">Thu</th>
+          <th style="width: 32px;">Fri</th>
+          <th style="width: 32px;">Sat</th>
+          <th style="width: 32px;">Sun</th>
+          <th style="width: 80px;">Total / Avg</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Wake on Time (08:00 AM)</td><td>7 / 7</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="text" placeholder="__/7"></td></tr>
+        <tr><td>Sleep on Time (12:00 AM)</td><td>7 / 7</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="text" placeholder="__/7"></td></tr>
+        <tr><td>Water Intake (Liters)</td><td>3.0 L</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td></tr>
+        <tr><td>Exercise (Minutes)</td><td>30m</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td></tr>
+        <tr><td>Sales Practice (Calls)</td><td>30/day</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td>REST</td><td><input type="text"></td></tr>
+        <tr><td>AI / YT Learning (Mins)</td><td>45m</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td></tr>
+        <tr><td>Hair / Scalp Routine</td><td>Daily</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="text" placeholder="__/7"></td></tr>
+        <tr><td>Cigarettes Smoked (Count)</td><td>< 4/day</td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text"></td></tr>
+        <tr><td>THC Used (Yes/No/Qty)</td><td>0/Low</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td></tr>
+        <tr><td>Instagram Screen Time (Mins)</td><td>< 30m</td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text"></td></tr>
+        <tr><td>YouTube Screen Time (Mins)</td><td>< 45m</td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text"></td></tr>
+        <tr><td>Gaming Screen Time (Mins)</td><td>0 Mins</td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text"></td></tr>
+        <tr><td>Total Screen Time (Hours)</td><td>< 1.5h</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td></tr>
+      </tbody>
+    </table>
+
+    <div style="background: #F0F9FF; border: 1px solid var(--accent); padding: 6px; font-size: 7.5pt; margin-bottom: 10px;">
+      <strong>RECLAIMED TIME ALLOCATION LOG:</strong> What did I do with the time recovered from scrolling? 
+      <div style="margin-top: 4px;">
+        <label><input type="checkbox"> Sleep / Rest</label> &nbsp;&nbsp;
+        <label><input type="checkbox"> Exercise</label> &nbsp;&nbsp;
+        <label><input type="checkbox"> Sales Calls</label> &nbsp;&nbsp;
+        <label><input type="checkbox"> Practical AI</label> &nbsp;&nbsp;
+        <label><input type="checkbox"> YouTube Pipeline</label>
+      </div>
+    </div>
+
+    <div class="banner">
+      PART 9: B2B SALES DASHBOARD — STARZ AI
+      <span class="sub">Primary Revenue Engine</span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 45px;">Date</th>
+          <th style="width: 35px;">Calls</th>
+          <th style="width: 35px;">Conv.</th>
+          <th style="width: 35px;">Leads</th>
+          <th style="width: 35px;">Meets</th>
+          <th style="width: 35px;">Demos</th>
+          <th style="width: 40px;">Closes</th>
+          <th style="width: 60px;">Revenue</th>
+          <th>Main Objection Encountered</th>
+          <th>Daily Lesson / Pitch Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text" placeholder="₹"></td><td><input type="text" placeholder="e.g. Budget / Price"></td><td><input type="text" placeholder="Pitch tweak..."></td></tr>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text" placeholder="₹"></td><td><input type="text" placeholder="e.g. Budget / Price"></td><td><input type="text" placeholder="Pitch tweak..."></td></tr>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text" placeholder="₹"></td><td><input type="text" placeholder="e.g. Budget / Price"></td><td><input type="text" placeholder="Pitch tweak..."></td></tr>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text" placeholder="₹"></td><td><input type="text" placeholder="e.g. Budget / Price"></td><td><input type="text" placeholder="Pitch tweak..."></td></tr>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text" placeholder="₹"></td><td><input type="text" placeholder="e.g. Budget / Price"></td><td><input type="text" placeholder="Pitch tweak..."></td></tr>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="number"></td><td><input type="text" placeholder="₹"></td><td><input type="text" placeholder="e.g. Budget / Price"></td><td><input type="text" placeholder="Pitch tweak..."></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 4: FINANCE, HEALTH & YOUTUBE -->
+  <div class="page-container">
+    <div class="header">
+      <h1>Financial System, Health & Content Engine</h1>
+      <div class="header-sub">
+        <span>PART 10, 11 & 13: DYNAMIC BUDGET, HAIR OBS & YOUTUBE PIPELINE</span>
+        <span>NON-MEDICAL CLINICIAN PREPARATION</span>
+      </div>
+    </div>
+
+    <div class="banner">
+      PART 10: DYNAMIC FINANCIAL SYSTEM & PRIORITY LADDER
+      <span class="sub">Base Salary: ₹20,000 / Month</span>
+    </div>
+
+    <div class="grid-3" style="margin-bottom: 8px;">
+      <div style="border: 1px solid var(--border); padding: 6px; font-size: 7.5pt;">
+        <strong>MONTHLY INCOME LEDGER</strong>
+        <div style="margin-top: 4px;">Base Salary: ₹20,000</div>
+        <div>Sales Comm: <input type="text" placeholder="₹_____"></div>
+        <div>Side Income: <input type="text" placeholder="₹_____"></div>
+        <div style="margin-top: 4px; font-weight: 700;">Total Income: <input type="text" placeholder="₹_____"></div>
+      </div>
+      <div style="border: 1px solid var(--border); padding: 6px; font-size: 7.5pt;">
+        <strong>DYNAMIC EXPENSES</strong>
+        <div style="margin-top: 4px;">Commute: <input type="text" placeholder="₹_____"></div>
+        <div>Food & Bills: <input type="text" placeholder="₹_____"></div>
+        <div>Health/Personal: <input type="text" placeholder="₹_____"></div>
+        <div style="margin-top: 4px; font-weight: 700;">Total Expenses: <input type="text" placeholder="₹_____"></div>
+      </div>
+      <div style="border: 1px solid var(--border); padding: 6px; font-size: 7.5pt;">
+        <strong>SAVINGS & NET METRICS</strong>
+        <div style="margin-top: 4px;">Net Savings: <input type="text" placeholder="₹_____"></div>
+        <div>Savings Rate: <input type="text" placeholder="____%"></div>
+        <div>Emergency Buffer: <input type="text" placeholder="₹_____"></div>
+        <div style="margin-top: 4px; font-weight: 700;">Net Worth: <input type="text" placeholder="₹_____"></div>
+      </div>
+    </div>
+
+    <div style="border: 1px solid var(--border); padding: 4px; background: var(--bg-light); text-align: center; font-size: 7.5pt; margin-bottom: 10px;">
+      <strong>FINANCIAL PRIORITY LADDER:</strong> 
+      [1] Track Expenses ➔ [2] Control Unnecessary Spend ➔ [3] Emergency Buffer ➔ [4] Increase Sales Income ➔ [5] Build Savings ➔ [6] Invest Wisely
+    </div>
+
+    <div class="banner">
+      PART 11: HEALTH SYSTEM & HAIR/SCALP OBSERVATION LOG
+      <span class="sub">Non-Medical Symptom Observation</span>
+    </div>
+    <div class="disclaimer">
+      <strong>MEDICAL DISCLAIMER:</strong> Medical diagnostic & treatment decisions must be made in consultation with a qualified healthcare professional. This log strictly records observations, symptom changes, treatment adherence, and preparation questions for clinician visits.
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 45px;">Date</th>
+          <th>Scalp / Hair Observation</th>
+          <th>Visible Changes</th>
+          <th>Treatment / Appointment</th>
+          <th style="width: 50px;">Adherence</th>
+          <th>Questions for Clinician</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="text" placeholder="Patch status, scalp feeling..."></td><td><input type="text" placeholder="Growth / shedding..."></td><td><input type="text" placeholder="Routine / visit..."></td><td><input type="text" placeholder="100%"></td><td><input type="text" placeholder="Specific query for doctor..."></td></tr>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="text" placeholder="Patch status, scalp feeling..."></td><td><input type="text" placeholder="Growth / shedding..."></td><td><input type="text" placeholder="Routine / visit..."></td><td><input type="text" placeholder="100%"></td><td><input type="text" placeholder="Specific query for doctor..."></td></tr>
+        <tr><td><input type="text" placeholder="DD/MM"></td><td><input type="text" placeholder="Patch status, scalp feeling..."></td><td><input type="text" placeholder="Growth / shedding..."></td><td><input type="text" placeholder="Routine / visit..."></td><td><input type="text" placeholder="100%"></td><td><input type="text" placeholder="Specific query for doctor..."></td></tr>
+      </tbody>
+    </table>
+
+    <div class="banner">
+      PART 13: FACELESS YOUTUBE PIPELINE & ANALYTICS
+      <span class="sub">Scalable Content Engine</span>
+    </div>
+    <div style="font-size: 7.5pt; text-align: center; margin-bottom: 4px; background: var(--bg-light); border: 1px solid var(--border); padding: 3px;">
+      <strong>10-STAGE PIPELINE:</strong> Idea ➔ Research ➔ Hook ➔ Script ➔ Voiceover ➔ Visuals ➔ Edit ➔ Thumbnail ➔ Upload ➔ Analyze
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Video Title / Topic</th>
+          <th>Hook Highlight</th>
+          <th style="width: 80px;">Stage</th>
+          <th style="width: 40px;">Views</th>
+          <th style="width: 40px;">CTR %</th>
+          <th style="width: 45px;">Avg Dur</th>
+          <th>Key Lesson Learned</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><input type="text" placeholder="Video topic..."></td><td><input type="text" placeholder="First 5-sec hook..."></td><td><input type="text" placeholder="Script / Edit"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text" placeholder="Takeaway..."></td></tr>
+        <tr><td><input type="text" placeholder="Video topic..."></td><td><input type="text" placeholder="First 5-sec hook..."></td><td><input type="text" placeholder="Script / Edit"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td><td><input type="text" placeholder="Takeaway..."></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 5: REFLECTION & DAILY COMMAND CENTER -->
+  <div class="page-container">
+    <div class="header">
+      <h1>Multi-Tier Reflection & One-Page Command Center</h1>
+      <div class="header-sub">
+        <span>PART 16 & 18: REVIEW CADENCE & DAILY FOCUS</span>
+        <span>TRACKING REALITY NOT INTENTIONS</span>
+      </div>
+    </div>
+
+    <div class="banner">
+      PART 16: REFLECTION JOURNALING SYSTEM
+      <span class="sub">Daily 3-Min & Weekly 20-Min Review</span>
+    </div>
+
+    <div class="grid-2" style="margin-bottom: 10px;">
+      <div style="border: 1px solid var(--border); padding: 6px; font-size: 7.5pt; background: white;">
+        <strong>DAILY 3-MINUTE EVENING REVIEW (10:30 PM)</strong>
+        <div style="margin-top: 4px;">1. What did I accomplish today?</div>
+        <textarea placeholder="Write accomplishments..."></textarea>
+        <div>2. What did I avoid or procrastinate on?</div>
+        <textarea placeholder="Write avoided tasks..."></textarea>
+        <div>3. Why did I avoid it? (Root bottleneck)</div>
+        <textarea placeholder="Root reason..."></textarea>
+        <div>4. What is tomorrow's #1 priority action?</div>
+        <textarea placeholder="#1 priority..."></textarea>
+      </div>
+
+      <div style="border: 1px solid var(--border); padding: 6px; font-size: 7.5pt; background: white;">
+        <strong>WEEKLY 20-MINUTE REVIEW (SUNDAY)</strong>
+        <div style="margin-top: 4px;">1. What worked & produced sales/health results?</div>
+        <textarea placeholder="Results..."></textarea>
+        <div>2. Where did I waste time or lose focus?</div>
+        <textarea placeholder="Distractions..."></textarea>
+        <div>3. What should I STOP doing next week?</div>
+        <textarea placeholder="Stop list..."></textarea>
+        <div>4. What successful routine should I CONTINUE?</div>
+        <textarea placeholder="Continue list..."></textarea>
+      </div>
+    </div>
+
+    <div class="banner">
+      PART 18: ONE-PAGE DAILY PERSONAL COMMAND CENTER
+      <span class="sub">Daily Execution Dashboard</span>
+    </div>
+
+    <div style="border: 1.5px solid var(--primary); padding: 8px; background: white;">
+      <div style="display: flex; justify-content: space-between; font-size: 8.5pt; font-weight: 700; margin-bottom: 6px; border-bottom: 1px solid var(--border); padding-bottom: 4px;">
+        <span>DATE: <input type="text" style="width: 100px;" placeholder="DD/MM/YYYY"></span>
+        <span>DAY: M &nbsp; T &nbsp; W &nbsp; T &nbsp; F &nbsp; S &nbsp; S</span>
+        <span>STARZ AI B2B SALES OS</span>
+      </div>
+
+      <div class="grid-3" style="margin-bottom: 6px;">
+        <div>
+          <strong style="font-size: 8pt; color: var(--secondary);">TOP 3 DAILY PRIORITIES</strong>
+          <div style="margin-top: 3px; font-size: 7.5pt;">1. <input type="text" placeholder="Priority 1"></div>
+          <div style="font-size: 7.5pt;">2. <input type="text" placeholder="Priority 2"></div>
+          <div style="font-size: 7.5pt;">3. <input type="text" placeholder="Priority 3"></div>
+        </div>
+        <div>
+          <strong style="font-size: 8pt; color: var(--secondary);">TODAY'S SCHEDULE BLOCK</strong>
+          <div style="font-size: 7pt; color: var(--text-dark); margin-top: 3px;">
+            08:00 Wake & Movement<br>
+            10:30 Starz AI Work Block<br>
+            20:45 Rotating Evening Theme<br>
+            22:30 Journal & Review
+          </div>
+        </div>
+        <div>
+          <strong style="font-size: 8pt; color: var(--secondary);">HEALTH & SALES TARGETS</strong>
+          <div style="font-size: 7.5pt; margin-top: 3px;">Water: <input type="text" style="width:40px;" placeholder="3.0L"> | Cigs: <input type="text" style="width:30px;" placeholder="<4"></div>
+          <div style="font-size: 7.5pt;">Calls: <input type="text" style="width:30px;" placeholder="30"> | Meets: <input type="text" style="width:30px;" placeholder="2"></div>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border); padding-top: 6px; margin-top: 4px; font-size: 8pt;">
+        <strong>HIGHEST-LEVERAGE ACTION QUESTION:</strong>
+        <em style="color: var(--accent);">"What is the single highest-leverage action I can take today that makes everything else easier or unnecessary?"</em>
+        <textarea style="margin-top: 4px; font-weight: 600;" placeholder="My single highest-leverage action today..."></textarea>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
