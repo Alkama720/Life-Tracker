@@ -4,63 +4,191 @@
 
 const esc = window.escapeHTML;
 
+/* ==========================================================================
+   CUSTOM ACCESSIBLE MODAL SYSTEM (STEP 2)
+   ========================================================================== */
+window.showCustomModal = function({ title, fields, onSubmit, submitText = 'Save' }) {
+  const overlay = document.getElementById('app-modal-overlay');
+  const container = document.getElementById('app-modal-container');
+  if (!overlay || !container) return;
+
+  const fieldsHTML = fields.map(f => {
+    if (f.type === 'info') {
+      return `<div style="font-size: 13px; color: var(--text-primary); padding: 8px 0;">${esc(f.label)}</div>`;
+    }
+    const fieldId = 'modal-field-' + f.name;
+    const labelHTML = `<label class="form-label" for="${fieldId}">${esc(f.label)}${f.required ? ' *' : ''}</label>`;
+    let inputHTML = '';
+
+    if (f.type === 'select') {
+      const optionsHTML = (f.options || []).map(opt => {
+        const val = typeof opt === 'object' ? opt.value : opt;
+        const lbl = typeof opt === 'object' ? opt.label : opt;
+        const selected = String(val) === String(f.value || '') ? 'selected' : '';
+        return `<option value="${esc(val)}" ${selected}>${esc(lbl)}</option>`;
+      }).join('');
+      inputHTML = `<select class="form-select" id="${fieldId}" name="${esc(f.name)}">${optionsHTML}</select>`;
+    } else if (f.type === 'textarea') {
+      inputHTML = `<textarea class="form-textarea" id="${fieldId}" name="${esc(f.name)}" placeholder="${esc(f.placeholder || '')}">${esc(f.value || '')}</textarea>`;
+    } else {
+      const minAttr = f.min !== undefined ? `min="${f.min}"` : '';
+      const maxAttr = f.max !== undefined ? `max="${f.max}"` : '';
+      const stepAttr = f.step !== undefined ? `step="${f.step}"` : '';
+      inputHTML = `<input type="${esc(f.type || 'text')}" class="form-input" id="${fieldId}" name="${esc(f.name)}" value="${esc(f.value || '')}" placeholder="${esc(f.placeholder || '')}" ${minAttr} ${maxAttr} ${stepAttr} ${f.required ? 'required' : ''}>`;
+    }
+
+    return `<div class="form-group">${labelHTML}${inputHTML}</div>`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="modal-header">
+      <div class="modal-title">${esc(title)}</div>
+      <button type="button" class="modal-close-btn" onclick="window.closeCustomModal()">&times;</button>
+    </div>
+    <form id="custom-modal-form" onsubmit="window.handleCustomModalSubmit(event)">
+      <div class="modal-body">
+        <div class="modal-error-msg" id="modal-error-msg"></div>
+        ${fieldsHTML}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="window.closeCustomModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">${esc(submitText)}</button>
+      </div>
+    </form>
+  `;
+
+  window._currentModalOnSubmit = onSubmit;
+  overlay.classList.add('active');
+  const firstInput = container.querySelector('input:not([type="hidden"]), select, textarea');
+  if (firstInput) firstInput.focus();
+};
+
+window.closeCustomModal = function() {
+  const overlay = document.getElementById('app-modal-overlay');
+  if (overlay) overlay.classList.remove('active');
+  window._currentModalOnSubmit = null;
+};
+
+window.handleCustomModalSubmit = function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const dataObj = {};
+  for (let [key, value] of formData.entries()) {
+    dataObj[key] = value.trim();
+  }
+
+  const errorEl = document.getElementById('modal-error-msg');
+  if (errorEl) errorEl.style.display = 'none';
+
+  if (window._currentModalOnSubmit) {
+    try {
+      const res = window._currentModalOnSubmit(dataObj);
+      if (res === false) return;
+    } catch (err) {
+      if (errorEl) {
+        errorEl.textContent = err.message || 'Validation error';
+        errorEl.style.display = 'block';
+      }
+      return;
+    }
+  }
+
+  window.closeCustomModal();
+};
+
+window.showConfirmModal = function({ title, message, onConfirm }) {
+  window.showCustomModal({
+    title: title || '⚠️ Confirm Action',
+    submitText: 'Delete Item',
+    fields: [
+      { name: '_info', label: message, type: 'info' }
+    ],
+    onSubmit: () => {
+      onConfirm();
+    }
+  });
+};
+
 window.renderView = function(viewName) {
   const container = document.getElementById('view-content');
   const data = window.appState.data;
 
+  let recoveryBanner = '';
+  if (window.appState && window.appState.recoveryNotice) {
+    recoveryBanner = `
+      <div style="background-color: rgba(244, 63, 94, 0.12); border: 1px solid var(--accent-rose); color: var(--text-primary); padding: 14px 18px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <strong style="color: var(--accent-rose);">⚠️ Storage Recovery Mode:</strong>
+          <span style="font-size: 13px; margin-left: 6px;">${esc(window.appState.recoveryNotice)}</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-primary" onclick="document.getElementById('import-file')?.click() || (window.appState.currentView='settings', window.renderView('settings'))">Restore Backup</button>
+          <button class="btn btn-secondary" onclick="window.appState.recoveryNotice=null; window.renderView('${viewName}');">Dismiss</button>
+        </div>
+      </div>
+    `;
+  }
+
+  let htmlContent = '';
   switch (viewName) {
     case 'dashboard':
-      container.innerHTML = renderDashboard(data);
-      if (window.renderDashboardCharts) window.renderDashboardCharts(data);
+      htmlContent = renderDashboard(data);
       break;
     case 'crm':
-      container.innerHTML = renderCRM(data);
+      htmlContent = renderCRM(data);
       break;
     case 'calendar':
-      container.innerHTML = renderCalendar(data);
+      htmlContent = renderCalendar(data);
       break;
     case 'priorities':
-      container.innerHTML = renderPriorities(data);
+      htmlContent = renderPriorities(data);
       break;
     case 'schedule':
-      container.innerHTML = renderSchedule(data);
+      htmlContent = renderSchedule(data);
       break;
     case 'habits':
-      container.innerHTML = renderHabits(data);
-      if (window.renderHabitCharts) window.renderHabitCharts(data);
+      htmlContent = renderHabits(data);
       break;
     case 'sales':
-      container.innerHTML = renderSales(data);
-      if (window.renderSalesCharts) window.renderSalesCharts(data);
+      htmlContent = renderSales(data);
       break;
     case 'finance':
-      container.innerHTML = renderFinance(data);
+      htmlContent = renderFinance(data);
       break;
     case 'health':
-      container.innerHTML = renderHealth(data);
+      htmlContent = renderHealth(data);
       break;
     case 'screentime':
-      container.innerHTML = renderScreenTime(data);
+      htmlContent = renderScreenTime(data);
       break;
     case 'youtube':
-      container.innerHTML = renderYouTube(data);
+      htmlContent = renderYouTube(data);
       break;
     case 'ai':
-      container.innerHTML = renderAI(data);
+      htmlContent = renderAI(data);
       break;
     case 'college':
-      container.innerHTML = renderCollege(data);
+      htmlContent = renderCollege(data);
       break;
     case 'reflection':
-      container.innerHTML = renderReflection(data);
-      if (window.renderRadarChart) window.renderRadarChart(data);
+      htmlContent = renderReflection(data);
       break;
     case 'settings':
-      container.innerHTML = renderSettings(data);
+      htmlContent = renderSettings(data);
       break;
     default:
-      container.innerHTML = '<h3>View Not Found</h3>';
+      htmlContent = '<h3>View Not Found</h3>';
   }
+
+  // Destroy any existing chart instances before replacing DOM
+  if (window.destroyAllCharts) window.destroyAllCharts();
+  container.innerHTML = recoveryBanner + htmlContent;
+
+  if (viewName === 'dashboard' && window.renderDashboardCharts) window.renderDashboardCharts(data);
+  if (viewName === 'habits' && window.renderHabitCharts) window.renderHabitCharts(data);
+  if (viewName === 'sales' && window.renderSalesCharts) window.renderSalesCharts(data);
+  if (viewName === 'reflection' && window.renderRadarChart) window.renderRadarChart(data);
 };
 
 /* 1. DASHBOARD VIEW */
@@ -301,46 +429,77 @@ function renderCRM(data) {
 }
 
 window.openAddLeadModal = function() {
-  const name = prompt('Enter Lead / Client Name:');
-  if (!name || !name.trim()) return;
-  const company = prompt('Enter Company Name:', 'Starz AI Prospect');
-  const email = prompt('Enter Email:', 'client@example.com');
-  const phone = prompt('Enter Phone Number:', '+91 ');
-  const dealValue = prompt('Enter Estimated Deal Value (₹):', '50000');
-  const stage = prompt('Enter Stage (CONTACTED, MEETING_SCHEDULED, PROPOSAL, WON, LOST):', 'CONTACTED');
-  const followUpDate = prompt('Enter Follow-up Date (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
-  const notes = prompt('Enter Notes / Key Requirement:');
-
-  window.appState.addLead({
-    name, company, email, phone, dealValue, stage, followUpDate, notes
+  window.showCustomModal({
+    title: '💼 Add New Sales Lead',
+    fields: [
+      { name: 'name', label: 'Lead / Client Name', type: 'text', required: true, placeholder: 'e.g. Vikram Mehta' },
+      { name: 'company', label: 'Company Name', type: 'text', value: 'Starz AI Prospect', placeholder: 'e.g. Apex Logistics' },
+      { name: 'email', label: 'Email Address', type: 'email', placeholder: 'client@example.com' },
+      { name: 'phone', label: 'Phone Number', type: 'tel', value: '+91 ', placeholder: '+91 98200 12345' },
+      { name: 'dealValue', label: 'Estimated Deal Value (₹)', type: 'number', min: 0, value: '50000' },
+      { name: 'stage', label: 'Pipeline Stage', type: 'select', value: 'CONTACTED', options: ['CONTACTED', 'MEETING_SCHEDULED', 'PROPOSAL', 'WON', 'LOST'] },
+      { name: 'followUpDate', label: 'Follow-Up Date', type: 'date', value: new Date().toISOString().slice(0,10) },
+      { name: 'notes', label: 'Notes / Key Requirements', type: 'textarea', placeholder: 'Key customer requirement...' }
+    ],
+    onSubmit: (data) => {
+      if (!data.name) {
+        throw new Error('Lead / Client Name is required.');
+      }
+      window.appState.addLead({
+        name: data.name,
+        company: data.company,
+        email: data.email,
+        phone: data.phone,
+        dealValue: data.dealValue,
+        stage: data.stage,
+        followUpDate: data.followUpDate,
+        notes: data.notes
+      });
+      window.renderView('crm');
+    }
   });
-
-  alert('Lead added successfully!');
-  window.renderView('crm');
 };
 
 window.openAddPaymentModal = function() {
-  const clientName = prompt('Enter Client Name & Company:');
-  if (!clientName || !clientName.trim()) return;
-  const dealAmount = prompt('Enter Total Deal Amount (₹):', '50000');
-  const paidAmount = prompt('Enter Paid Amount Received (₹):', '20000');
-  const dueDate = prompt('Enter Due Date for Remaining Balance (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
-  const history = prompt('Enter Receipt Notes / Payment Method:', 'Paid via UPI');
-
-  window.appState.addPayment({
-    clientName, dealAmount, paidAmount, dueDate, history
+  window.showCustomModal({
+    title: '💰 Record Client Payment',
+    fields: [
+      { name: 'clientName', label: 'Client Name & Company', type: 'text', required: true, placeholder: 'e.g. Rajesh Nair (FinEdge)' },
+      { name: 'dealAmount', label: 'Total Deal Amount (₹)', type: 'number', min: 0, value: '50000' },
+      { name: 'paidAmount', label: 'Paid Amount Received (₹)', type: 'number', min: 0, value: '20000' },
+      { name: 'dueDate', label: 'Due Date for Remaining Balance', type: 'date', value: new Date().toISOString().slice(0,10) },
+      { name: 'history', label: 'Receipt Notes / Payment Method', type: 'text', value: 'Paid via UPI' }
+    ],
+    onSubmit: (data) => {
+      if (!data.clientName) {
+        throw new Error('Client Name is required.');
+      }
+      window.appState.addPayment({
+        clientName: data.clientName,
+        dealAmount: data.dealAmount,
+        paidAmount: data.paidAmount,
+        dueDate: data.dueDate,
+        history: data.history
+      });
+      window.renderView('crm');
+    }
   });
-
-  alert('Payment logged successfully!');
-  window.renderView('crm');
 };
 
 window.quickUpdateStage = function(leadId) {
-  const newStage = prompt('Enter new stage (CONTACTED, MEETING_SCHEDULED, PROPOSAL, WON, LOST):', 'PROPOSAL');
-  if (newStage) {
-    window.appState.updateLeadStage(leadId, newStage);
-    window.renderView('crm');
-  }
+  const lead = window.appState.data.crmLeads.find(l => l.id === leadId);
+  const currentStage = lead ? lead.stage : 'CONTACTED';
+  window.showCustomModal({
+    title: '🔄 Update Lead Pipeline Stage',
+    submitText: 'Update Stage',
+    fields: [
+      { name: 'stage', label: 'New Pipeline Stage', type: 'select', value: currentStage, options: ['CONTACTED', 'MEETING_SCHEDULED', 'PROPOSAL', 'WON', 'LOST'] }
+    ],
+    onSubmit: (data) => {
+      window.appState.updateLeadStage(leadId, data.stage);
+      window.renderView('crm');
+    }
+  });
 };
 
 /* 3. CALENDAR & GOOGLE TASKS VIEW */
@@ -451,33 +610,51 @@ function renderCalendar(data) {
 }
 
 window.openAddMeetingModal = function() {
-  const clientName = prompt('Enter Client Name / Company:');
-  if (!clientName || !clientName.trim()) return;
-  const date = prompt('Enter Meeting Date (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
-  const time = prompt('Enter Meeting Time (HH:MM e.g. 15:30):', '15:30');
-  const agenda = prompt('Enter Meeting Agenda / Objective:', 'Starz AI Solution Demo');
-  const location = prompt('Enter Location (Google Meet / Starz AI Office / Phone):', 'Google Meet');
-
-  window.appState.addMeeting({
-    clientName, date, time, agenda, location, status: 'SCHEDULED'
+  window.showCustomModal({
+    title: '📅 Schedule Client Meeting',
+    fields: [
+      { name: 'clientName', label: 'Client Name / Company', type: 'text', required: true, placeholder: 'e.g. Ananya Sharma (Nexus)' },
+      { name: 'date', label: 'Meeting Date', type: 'date', value: new Date().toISOString().slice(0,10) },
+      { name: 'time', label: 'Meeting Time', type: 'time', value: '15:30' },
+      { name: 'agenda', label: 'Meeting Agenda / Objective', type: 'text', value: 'Starz AI Solution Demo' },
+      { name: 'location', label: 'Location / Platform', type: 'select', value: 'Google Meet', options: ['Google Meet', 'Starz AI Office', 'Phone Call', 'Client Site'] }
+    ],
+    onSubmit: (data) => {
+      if (!data.clientName) {
+        throw new Error('Client Name is required.');
+      }
+      window.appState.addMeeting({
+        clientName: data.clientName,
+        date: data.date,
+        time: data.time,
+        agenda: data.agenda,
+        location: data.location
+      });
+      window.renderView('calendar');
+    }
   });
-
-  alert('Meeting scheduled successfully!');
-  window.renderView('calendar');
 };
 
 window.openAddTaskModal = function() {
-  const title = prompt('Enter Task Title / Action:');
-  if (!title || !title.trim()) return;
-  const dueDate = prompt('Enter Due Date (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
-  const priority = prompt('Enter Priority (HIGH, MEDIUM, LOW):', 'HIGH');
-
-  window.appState.addTask({
-    title, dueDate, priority
+  window.showCustomModal({
+    title: '✅ Add Google Task',
+    fields: [
+      { name: 'title', label: 'Task Title / Action Item', type: 'text', required: true, placeholder: 'e.g. Send revised B2B proposal' },
+      { name: 'dueDate', label: 'Due Date', type: 'date', value: new Date().toISOString().slice(0,10) },
+      { name: 'priority', label: 'Task Priority', type: 'select', value: 'HIGH', options: ['HIGH', 'MEDIUM', 'LOW'] }
+    ],
+    onSubmit: (data) => {
+      if (!data.title) {
+        throw new Error('Task Title is required.');
+      }
+      window.appState.addTask({
+        title: data.title,
+        dueDate: data.dueDate,
+        priority: data.priority
+      });
+      window.renderView('calendar');
+    }
   });
-
-  alert('Task added successfully!');
-  window.renderView('calendar');
 };
 
 /* 4. PRIORITIES & GOALS VIEW */
@@ -905,24 +1082,32 @@ function renderHealth(data) {
 }
 
 window.openAddHairModal = function() {
-  const obs = prompt('Enter Scalp / Hair Observation:');
-  if (!obs || !obs.trim()) return;
-  const changes = prompt('Enter Visible Changes (e.g. Fine vellus hair growth, stable patch):', 'Stable patch boundary');
-  const treatment = prompt('Enter Treatment / Routine (e.g. Daily massage, hygiene):', 'Daily scalp care & hygiene');
-  const adherence = prompt('Enter Adherence % (e.g. 100%):', '100%');
-  const questions = prompt('Enter Questions for Clinician:');
-
-  window.appState.addHairLog({
-    date: new Date().toISOString().slice(0, 10),
-    observation: obs,
-    visibleChanges: changes,
-    treatment, adherence,
-    clinicianQuestions: questions
+  window.showCustomModal({
+    title: '🩺 Record Scalp Care Observation',
+    fields: [
+      { name: 'observation', label: 'Scalp / Hair Observation', type: 'text', required: true, placeholder: 'e.g. Mild scalp tightness on crown' },
+      { name: 'visibleChanges', label: 'Visible Changes', type: 'text', value: 'Stable patch boundary' },
+      { name: 'treatment', label: 'Treatment / Routine', type: 'text', value: 'Daily scalp care & hygiene' },
+      { name: 'adherence', label: 'Adherence', type: 'select', value: '100%', options: ['100%', '75%', '50%', '25%'] },
+      { name: 'questions', label: 'Questions for Clinician', type: 'textarea', placeholder: 'Questions for clinician...' }
+    ],
+    onSubmit: (data) => {
+      if (!data.observation) {
+        throw new Error('Scalp Observation is required.');
+      }
+      window.appState.addHairLog({
+        date: new Date().toISOString().slice(0, 10),
+        observation: data.observation,
+        visibleChanges: data.visibleChanges,
+        treatment: data.treatment,
+        adherence: data.adherence,
+        clinicianQuestions: data.questions
+      });
+      window.renderView('health');
+    }
   });
-
-  alert('Observation logged successfully!');
-  window.renderView('health');
 };
+window.openAddScalpLogModal = window.openAddHairModal;
 
 /* 10. SCREEN TIME VIEW */
 function renderScreenTime(data) {
@@ -1014,17 +1199,25 @@ function renderYouTube(data) {
 }
 
 window.openAddYouTubeModal = function() {
-  const title = prompt('Enter Video Title / Topic:');
-  if (!title || !title.trim()) return;
-  const hook = prompt('Enter Hook (First 5 seconds):', 'How to...');
-  const stage = prompt('Enter Stage (IDEA, RESEARCH, HOOK, SCRIPT, EDIT, UPLOAD):', 'IDEA');
-
-  window.appState.addYouTubeVideo({
-    title, hook, stage, views: 0, ctr: 0, avgDur: '0m', subs: 0
+  window.showCustomModal({
+    title: '🎬 Add YouTube Video Idea',
+    fields: [
+      { name: 'title', label: 'Video Title / Topic', type: 'text', required: true, placeholder: 'e.g. 5 AI Sales Automations' },
+      { name: 'hook', label: 'Hook (First 5 seconds)', type: 'text', value: 'How I book 10+ meetings/week...' },
+      { name: 'stage', label: 'Pipeline Stage', type: 'select', value: 'IDEA', options: ['IDEA', 'RESEARCH', 'HOOK', 'SCRIPT', 'EDIT', 'UPLOAD'] }
+    ],
+    onSubmit: (data) => {
+      if (!data.title) {
+        throw new Error('Video Title is required.');
+      }
+      window.appState.addYouTubeVideo({
+        title: data.title,
+        hook: data.hook,
+        stage: data.stage
+      });
+      window.renderView('youtube');
+    }
   });
-
-  alert('Video added to pipeline!');
-  window.renderView('youtube');
 };
 
 /* 12. AI VIEW WITH ADD & DELETE */
@@ -1079,22 +1272,32 @@ function renderAI(data) {
 }
 
 window.openAddAIModal = function() {
-  const topic = prompt('Enter Practical AI Topic / Skill:');
-  if (!topic || !topic.trim()) return;
-  const category = prompt('Enter Category (Sales AI, Automation, Marketing AI, Content):', 'Sales AI');
-  const resource = prompt('Enter Resource / Tool Used:', 'ChatGPT Custom Prompting');
-  const takeaway = prompt('Enter Key Takeaway:');
-  const applied = prompt('Enter Where Applied in Workflow:', 'B2B Sales Outreach');
-
-  window.appState.addAILog({
-    date: new Date().toISOString().slice(0, 10),
-    topic, category, resource, takeaway,
-    built: 'Saved workflow template', applied
+  window.showCustomModal({
+    title: '🤖 Log Practical AI Skill / Automation',
+    fields: [
+      { name: 'topic', label: 'Practical AI Topic / Skill', type: 'text', required: true, placeholder: 'e.g. B2B Objection Handling Prompts' },
+      { name: 'category', label: 'Category', type: 'select', value: 'Sales AI', options: ['Sales AI', 'Automation', 'Marketing AI', 'Content'] },
+      { name: 'resource', label: 'Resource / Tool Used', type: 'text', value: 'ChatGPT Custom Prompting' },
+      { name: 'takeaway', label: 'Key Takeaway', type: 'textarea', placeholder: 'Core lesson or framework...' },
+      { name: 'applied', label: 'Where Applied in Workflow', type: 'text', value: 'B2B Sales Outreach' }
+    ],
+    onSubmit: (data) => {
+      if (!data.topic) {
+        throw new Error('Topic is required.');
+      }
+      window.appState.addAILog({
+        date: new Date().toISOString().slice(0, 10),
+        topic: data.topic,
+        category: data.category,
+        resource: data.resource,
+        takeaway: data.takeaway,
+        applied: data.applied
+      });
+      window.renderView('ai');
+    }
   });
-
-  alert('Practical AI Log saved!');
-  window.renderView('ai');
 };
+window.openAddAILogModal = window.openAddAIModal;
 
 /* 13. COLLEGE VIEW WITH ADD & DELETE */
 function renderCollege(data) {
@@ -1142,18 +1345,28 @@ function renderCollege(data) {
 }
 
 window.openAddCollegeModal = function() {
-  const subject = prompt('Enter Subject Name:');
-  if (!subject || !subject.trim()) return;
-  const task = prompt('Enter Assignment / Exam Detail:', 'Project Report');
-  const deadline = prompt('Enter Deadline (YYYY-MM-DD):', new Date().toISOString().slice(0,10));
-  const priority = prompt('Enter Priority (HIGH, MEDIUM, LOW):', 'MEDIUM');
-
-  window.appState.addCollegeTask({
-    subject, task, deadline, priority, status: 'PENDING'
+  window.showCustomModal({
+    title: '🎓 Add College Task',
+    fields: [
+      { name: 'subject', label: 'Subject Name', type: 'text', required: true, placeholder: 'e.g. Business Management' },
+      { name: 'task', label: 'Assignment / Exam Detail', type: 'text', value: 'Project Report' },
+      { name: 'deadline', label: 'Deadline', type: 'date', value: new Date().toISOString().slice(0,10) },
+      { name: 'priority', label: 'Priority', type: 'select', value: 'MEDIUM', options: ['HIGH', 'MEDIUM', 'LOW'] }
+    ],
+    onSubmit: (data) => {
+      if (!data.subject) {
+        throw new Error('Subject Name is required.');
+      }
+      window.appState.addCollegeTask({
+        subject: data.subject,
+        task: data.task,
+        deadline: data.deadline,
+        priority: data.priority,
+        status: 'PENDING'
+      });
+      window.renderView('college');
+    }
   });
-
-  alert('College task added!');
-  window.renderView('college');
 };
 
 /* 14. REFLECTION VIEW */
@@ -1228,7 +1441,7 @@ function renderSettings(data) {
         </ul>
       </div>
       <div class="grid-cols-3" style="margin-top: 16px;">
-        <button class="btn btn-primary" onclick="window.appState.exportJSON()">📥 Export Backup JSON</button>
+        <button class="btn btn-primary" onclick="window.appState.exportData()">📥 Export Backup JSON</button>
         <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">📤 Restore JSON Backup</button>
         <button class="btn btn-secondary" style="border-color: var(--accent-rose); color: var(--accent-rose);" onclick="window.appState.resetData()">⚠️ Reset Factory Default</button>
       </div>
@@ -1242,7 +1455,8 @@ window.handleImportFile = function(e) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = function(evt) {
-    window.appState.importJSON(evt.target.result);
+    window.appState.importData(evt.target.result);
   };
   reader.readAsText(file);
+  e.target.value = '';
 };

@@ -1,6 +1,50 @@
 /* ==========================================================================
    LIFE OS ANALYTICS ENGINE — DYNAMIC THEME-AWARE CHART.JS INTEGRATION
+   Chart Registry Pattern: all instances tracked by canvas ID, auto-destroyed
+   on re-render and theme toggle.
    ========================================================================== */
+
+// --- CHART INSTANCE REGISTRY ---
+const chartRegistry = new Map();
+
+/**
+ * Get or create a Chart.js instance. Automatically destroys any existing
+ * chart on the same canvas before creating a new one — prevents canvas reuse
+ * warnings and memory leaks from orphaned instances.
+ */
+function createChart(canvasId, config) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return null;
+
+  // Destroy existing instance on this canvas
+  if (chartRegistry.has(canvasId)) {
+    try {
+      chartRegistry.get(canvasId).destroy();
+    } catch (e) {
+      console.warn('Chart destroy failed for', canvasId, e);
+    }
+    chartRegistry.delete(canvasId);
+  }
+
+  const instance = new Chart(canvas, config);
+  chartRegistry.set(canvasId, instance);
+  return instance;
+}
+
+/**
+ * Destroy all tracked chart instances. Called on view navigation away from
+ * a chart-containing view and on theme toggle to fully reset the canvas state.
+ */
+window.destroyAllCharts = function() {
+  chartRegistry.forEach((chart, id) => {
+    try {
+      chart.destroy();
+    } catch (e) {
+      console.warn('Chart destroy failed for', id, e);
+    }
+  });
+  chartRegistry.clear();
+};
 
 function getChartColors() {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -15,11 +59,6 @@ function getChartColors() {
   };
 }
 
-let chartCigsInstance = null;
-let chartScreenInstance = null;
-let chartSalesInstance = null;
-let chartRadarInstance = null;
-
 window.renderDashboardCharts = function(data) {
   const entries = data.dailyEntries || [];
   const dates = entries.map(e => e.date ? e.date.slice(5) : '');
@@ -28,62 +67,56 @@ window.renderDashboardCharts = function(data) {
   const c = getChartColors();
 
   // Cigarettes Chart
-  const ctxCigs = document.getElementById('chart-cigs') || document.getElementById('chart-habits-cigs');
-  if (ctxCigs) {
-    if (chartCigsInstance) chartCigsInstance.destroy();
-    chartCigsInstance = new Chart(ctxCigs, {
-      type: 'line',
-      data: {
-        labels: dates,
-        datasets: [{
-          label: 'Cigarettes Smoked (Target < 4)',
-          data: cigs,
-          borderColor: c.rose,
-          backgroundColor: c.rose + '20',
-          fill: true,
-          tension: 0.3,
-          borderWidth: 2.5
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
-        scales: {
-          x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
-          y: { min: 0, max: 10, ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
-        }
+  const cigsCanvasId = document.getElementById('chart-cigs') ? 'chart-cigs' : 'chart-habits-cigs';
+  createChart(cigsCanvasId, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'Cigarettes Smoked (Target < 4)',
+        data: cigs,
+        borderColor: c.rose,
+        backgroundColor: c.rose + '20',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2.5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
+      scales: {
+        x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
+        y: { min: 0, max: 10, ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
       }
-    });
-  }
+    }
+  });
 
   // Screen Time Chart
-  const ctxScreen = document.getElementById('chart-screen') || document.getElementById('chart-habits-screen');
-  if (ctxScreen) {
-    if (chartScreenInstance) chartScreenInstance.destroy();
-    chartScreenInstance = new Chart(ctxScreen, {
-      type: 'line',
-      data: {
-        labels: dates,
-        datasets: [{
-          label: 'Rec Screen Time (Hrs)',
-          data: screens,
-          borderColor: c.cyan,
-          backgroundColor: c.cyan + '20',
-          fill: true,
-          tension: 0.3,
-          borderWidth: 2.5
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
-        scales: {
-          x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
-          y: { min: 0, max: 5, ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
-        }
+  const screenCanvasId = document.getElementById('chart-screen') ? 'chart-screen' : 'chart-habits-screen';
+  createChart(screenCanvasId, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [{
+        label: 'Rec Screen Time (Hrs)',
+        data: screens,
+        borderColor: c.cyan,
+        backgroundColor: c.cyan + '20',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2.5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
+      scales: {
+        x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
+        y: { min: 0, max: 5, ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
       }
-    });
-  }
+    }
+  });
 };
 
 window.renderHabitCharts = function(data) {
@@ -98,29 +131,25 @@ window.renderSalesCharts = function(data) {
   const closes = salesLogs.map(s => s.closes || 0);
   const c = getChartColors();
 
-  const ctxFunnel = document.getElementById('chart-sales-funnel');
-  if (ctxFunnel) {
-    if (chartSalesInstance) chartSalesInstance.destroy();
-    chartSalesInstance = new Chart(ctxFunnel, {
-      type: 'bar',
-      data: {
-        labels: dates,
-        datasets: [
-          { label: 'Calls', data: calls, backgroundColor: c.cyan },
-          { label: 'Meetings Booked', data: meets, backgroundColor: c.amber },
-          { label: 'Closings', data: closes, backgroundColor: c.emerald }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
-        scales: {
-          x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
-          y: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
-        }
+  createChart('chart-sales-funnel', {
+    type: 'bar',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'Calls', data: calls, backgroundColor: c.cyan },
+        { label: 'Meetings Booked', data: meets, backgroundColor: c.amber },
+        { label: 'Closings', data: closes, backgroundColor: c.emerald }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
+      scales: {
+        x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
+        y: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
       }
-    });
-  }
+    }
+  });
 };
 
 window.renderRadarChart = function(data) {
@@ -129,33 +158,29 @@ window.renderRadarChart = function(data) {
   const values = Object.values(scores);
   const c = getChartColors();
 
-  const ctxRadar = document.getElementById('chart-radar');
-  if (ctxRadar) {
-    if (chartRadarInstance) chartRadarInstance.destroy();
-    chartRadarInstance = new Chart(ctxRadar, {
-      type: 'radar',
-      data: {
-        labels: labels,
-        datasets: [{
-          label: 'Life Balance Score (1-10)',
-          data: values,
-          borderColor: c.purple,
-          backgroundColor: c.purple + '30',
-          borderWidth: 2.5
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
-        scales: {
-          r: {
-            angleLines: { color: c.gridColor },
-            grid: { color: c.gridColor },
-            pointLabels: { color: c.textColor, font: { family: 'Outfit', size: 11, weight: '600' } },
-            ticks: { display: false, min: 0, max: 10 }
-          }
+  createChart('chart-radar', {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Life Balance Score (1-10)',
+        data: values,
+        borderColor: c.purple,
+        backgroundColor: c.purple + '30',
+        borderWidth: 2.5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
+      scales: {
+        r: {
+          angleLines: { color: c.gridColor },
+          grid: { color: c.gridColor },
+          pointLabels: { color: c.textColor, font: { family: 'Outfit', size: 11, weight: '600' } },
+          ticks: { display: false, min: 0, max: 10 }
         }
       }
-    });
-  }
+    }
+  });
 };

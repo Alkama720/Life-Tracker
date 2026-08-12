@@ -180,18 +180,30 @@ const defaultState = {
 
 class AppState {
   constructor() {
+    this.recoveryNotice = null;
     this.data = this.loadData();
     this.currentView = 'dashboard';
   }
 
   loadData() {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    let raw = null;
+    try {
+      raw = localStorage.getItem(STORAGE_KEY);
+    } catch (e) {
+      console.error('Failed to read from localStorage:', e);
+      this.recoveryNotice = 'Failed to access browser storage. Restored baseline default state.';
+      return JSON.parse(JSON.stringify(defaultState));
+    }
+
     if (!raw) {
       this.saveData(defaultState);
       return JSON.parse(JSON.stringify(defaultState));
     }
     try {
       const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('Stored data is not a valid object');
+      }
       if (!parsed.crmLeads || !Array.isArray(parsed.crmLeads)) parsed.crmLeads = defaultState.crmLeads;
       if (!parsed.clientPayments || !Array.isArray(parsed.clientPayments)) parsed.clientPayments = defaultState.clientPayments;
       if (!parsed.meetings || !Array.isArray(parsed.meetings)) parsed.meetings = defaultState.meetings;
@@ -206,14 +218,19 @@ class AppState {
       if (!parsed.finance) parsed.finance = defaultState.finance;
       return parsed;
     } catch (e) {
-      console.error('Failed to parse state, resetting to default', e);
+      console.error('Failed to parse state from localStorage, resetting to default', e);
+      this.recoveryNotice = 'Data in local storage was corrupted or invalid. Restored default baseline state. Please restore from a backup file if available.';
       this.saveData(defaultState);
       return JSON.parse(JSON.stringify(defaultState));
     }
   }
 
   saveData(dataToSave) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave || this.data));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave || this.data));
+    } catch (e) {
+      console.error('Failed to save state to localStorage:', e);
+    }
   }
 
   // --- CRUD METHODS WITH BOUNDS VALIDATION ---
@@ -247,11 +264,15 @@ class AppState {
   }
 
   deleteLead(leadId) {
-    if (confirm('Are you sure you want to delete this lead?')) {
-      this.data.crmLeads = this.data.crmLeads.filter(l => l.id !== leadId);
-      this.saveData();
-      if (window.renderView) window.renderView('crm');
-    }
+    window.showConfirmModal({
+      title: '⚠️ Delete Lead',
+      message: 'Are you sure you want to delete this lead? This action cannot be undone.',
+      onConfirm: () => {
+        this.data.crmLeads = this.data.crmLeads.filter(l => l.id !== leadId);
+        this.saveData();
+        if (window.renderView) window.renderView('crm');
+      }
+    });
   }
 
   addMeeting(meetingObj) {
@@ -273,11 +294,15 @@ class AppState {
   }
 
   deleteMeeting(meetingId) {
-    if (confirm('Are you sure you want to delete this meeting?')) {
-      this.data.meetings = this.data.meetings.filter(m => m.id !== meetingId);
-      this.saveData();
-      if (window.renderView) window.renderView('calendar');
-    }
+    window.showConfirmModal({
+      title: '⚠️ Delete Meeting',
+      message: 'Are you sure you want to delete this meeting?',
+      onConfirm: () => {
+        this.data.meetings = this.data.meetings.filter(m => m.id !== meetingId);
+        this.saveData();
+        if (window.renderView) window.renderView('calendar');
+      }
+    });
   }
 
   addPayment(paymentObj) {
@@ -305,11 +330,15 @@ class AppState {
   }
 
   deletePayment(paymentId) {
-    if (confirm('Are you sure you want to delete this payment record?')) {
-      this.data.clientPayments = this.data.clientPayments.filter(p => p.id !== paymentId);
-      this.saveData();
-      if (window.renderView) window.renderView('crm');
-    }
+    window.showConfirmModal({
+      title: '⚠️ Delete Payment',
+      message: 'Are you sure you want to delete this payment record?',
+      onConfirm: () => {
+        this.data.clientPayments = this.data.clientPayments.filter(p => p.id !== paymentId);
+        this.saveData();
+        if (window.renderView) window.renderView('crm');
+      }
+    });
   }
 
   addTask(taskObj) {
@@ -362,11 +391,15 @@ class AppState {
   }
 
   deleteYouTubeVideo(id) {
-    if (confirm('Are you sure you want to delete this YouTube video idea?')) {
-      this.data.youtubePipeline = this.data.youtubePipeline.filter(y => String(y.id) !== String(id));
-      this.saveData();
-      if (window.renderView) window.renderView('youtube');
-    }
+    window.showConfirmModal({
+      title: '⚠️ Delete YouTube Video',
+      message: 'Are you sure you want to delete this YouTube video idea?',
+      onConfirm: () => {
+        this.data.youtubePipeline = this.data.youtubePipeline.filter(y => String(y.id) !== String(id));
+        this.saveData();
+        if (window.renderView) window.renderView('youtube');
+      }
+    });
   }
 
   addAILog(aiObj) {
@@ -389,11 +422,15 @@ class AppState {
   }
 
   deleteAILog(id) {
-    if (confirm('Are you sure you want to delete this AI log?')) {
-      this.data.aiLogs = this.data.aiLogs.filter(a => String(a.id) !== String(id));
-      this.saveData();
-      if (window.renderView) window.renderView('ai');
-    }
+    window.showConfirmModal({
+      title: '⚠️ Delete AI Log',
+      message: 'Are you sure you want to delete this AI log?',
+      onConfirm: () => {
+        this.data.aiLogs = this.data.aiLogs.filter(a => String(a.id) !== String(id));
+        this.saveData();
+        if (window.renderView) window.renderView('ai');
+      }
+    });
   }
 
   addHairLog(hairObj) {
@@ -415,11 +452,15 @@ class AppState {
   }
 
   deleteHairLog(id) {
-    if (confirm('Are you sure you want to delete this scalp observation log?')) {
-      this.data.hairLogs = this.data.hairLogs.filter(h => String(h.id) !== String(id));
-      this.saveData();
-      if (window.renderView) window.renderView('health');
-    }
+    window.showConfirmModal({
+      title: '⚠️ Delete Scalp Log',
+      message: 'Are you sure you want to delete this scalp observation log?',
+      onConfirm: () => {
+        this.data.hairLogs = this.data.hairLogs.filter(h => String(h.id) !== String(id));
+        this.saveData();
+        if (window.renderView) window.renderView('health');
+      }
+    });
   }
 
   addCollegeTask(colObj) {
@@ -440,11 +481,15 @@ class AppState {
   }
 
   deleteCollegeTask(id) {
-    if (confirm('Are you sure you want to delete this college task?')) {
-      this.data.collegeTasks = this.data.collegeTasks.filter(c => String(c.id) !== String(id));
-      this.saveData();
-      if (window.renderView) window.renderView('college');
-    }
+    window.showConfirmModal({
+      title: '⚠️ Delete College Task',
+      message: 'Are you sure you want to delete this college task?',
+      onConfirm: () => {
+        this.data.collegeTasks = this.data.collegeTasks.filter(c => String(c.id) !== String(id));
+        this.saveData();
+        if (window.renderView) window.renderView('college');
+      }
+    });
   }
 
   createGCalUrl(title, details, dateStr, timeStr) {
@@ -461,23 +506,39 @@ class AppState {
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(details || '')}&dates=${datesParam}`;
   }
 
+  exportData() {
+    this.exportJSON();
+  }
+
   exportJSON() {
-    const jsonStr = JSON.stringify(this.data, null, 2);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Life_OS_Backup_${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    try {
+      const jsonStr = JSON.stringify(this.data, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Life_OS_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Failed to export data backup:', e);
+      alert('Failed to export data backup.');
+    }
+  }
+
+  importData(jsonString) {
+    this.importJSON(jsonString);
   }
 
   importJSON(jsonString) {
     try {
       const parsed = JSON.parse(jsonString);
       
+      // STRICT BACKUP SCHEMA VALIDATION — NEVER WIPE EXISTING DATA ON MALFORMED BACKUPS
       if (!validateBackupSchema(parsed)) {
-        alert('SECURITY/INTEGRATION NOTICE: Malformed or invalid backup file format. Existing application data has been preserved intact.');
+        alert('SECURITY/INTEGRATION NOTICE: Malformed or invalid backup file format. Expected top-level keys were missing. Existing application data has been preserved intact.');
         return;
       }
 
@@ -499,38 +560,56 @@ class AppState {
   }
 
   quickLogModal() {
-    const dateStr = validateDate(new Date().toISOString().slice(0, 10));
-    const callsRaw = prompt('Enter today\'s Sales Calls count (0 - 200):', '30');
-    if (callsRaw === null) return;
-    const cigsRaw = prompt('Enter Cigarettes count smoked today (0 - 50):', '4');
-    if (cigsRaw === null) return;
-    const screenRaw = prompt('Enter Total Recreational Screen Time (Hours, e.g. 1.8):', '1.8');
-    if (screenRaw === null) return;
+    const todayStr = validateDate(new Date().toISOString().slice(0, 10));
+    const existingEntry = this.data.dailyEntries.find(e => e.date === todayStr) || {};
 
-    const entry = {
-      date: dateStr,
-      wakeTime: '08:00',
-      sleepTime: '00:00',
-      waterLiters: 3.0,
-      exerciseMins: 30,
-      cigarettes: validateInt(cigsRaw, 0, 100, 0),
-      screenTimeHrs: validateNumber(screenRaw, 0, 24, 0),
-      instagramMins: 45,
-      youtubeMins: 45,
-      gamingMins: 0,
-      salesCalls: validateInt(callsRaw, 0, 300, 0),
-      salesMeets: 2,
-      revenue: 0,
-      reclaimedAllocation: ['Sales Calls', 'Exercise']
-    };
+    window.showCustomModal({
+      title: '⚡ Daily Quick Log',
+      submitText: 'Log Metrics',
+      fields: [
+        { name: 'salesCalls', label: 'Today\'s Sales Calls Count', type: 'number', min: 0, max: 300, value: existingEntry.salesCalls !== undefined ? existingEntry.salesCalls : 30 },
+        { name: 'cigarettes', label: 'Cigarettes Smoked Today', type: 'number', min: 0, max: 50, value: existingEntry.cigarettes !== undefined ? existingEntry.cigarettes : 4 },
+        { name: 'screenTimeHrs', label: 'Recreational Screen Time (Hours)', type: 'number', step: 0.1, min: 0, max: 24, value: existingEntry.screenTimeHrs !== undefined ? existingEntry.screenTimeHrs : 1.8 }
+      ],
+      onSubmit: (data) => {
+        const updatedCalls = validateInt(data.salesCalls, 0, 300, 0);
+        const updatedCigs = validateInt(data.cigarettes, 0, 100, 0);
+        const updatedScreen = validateNumber(data.screenTimeHrs, 0, 24, 0);
 
-    this.data.dailyEntries = this.data.dailyEntries.filter(e => e.date !== dateStr);
-    this.data.dailyEntries.push(entry);
-    this.saveData();
-    alert('Today\'s entry logged successfully!');
-    if (this.currentView === 'dashboard' || this.currentView === 'habits') {
-      window.renderView(this.currentView);
-    }
+        let entry;
+        if (existingEntry.date) {
+          entry = Object.assign({}, existingEntry, {
+            cigarettes: updatedCigs,
+            screenTimeHrs: updatedScreen,
+            salesCalls: updatedCalls
+          });
+        } else {
+          entry = {
+            date: todayStr,
+            wakeTime: '08:00',
+            sleepTime: '00:00',
+            waterLiters: 3.0,
+            exerciseMins: 30,
+            cigarettes: updatedCigs,
+            screenTimeHrs: updatedScreen,
+            instagramMins: 45,
+            youtubeMins: 45,
+            gamingMins: 0,
+            salesCalls: updatedCalls,
+            salesMeets: 2,
+            revenue: 0,
+            reclaimedAllocation: ['Sales Calls', 'Exercise']
+          };
+        }
+
+        this.data.dailyEntries = this.data.dailyEntries.filter(e => e.date !== todayStr);
+        this.data.dailyEntries.push(entry);
+        this.saveData();
+        if (this.currentView === 'dashboard' || this.currentView === 'habits') {
+          window.renderView(this.currentView);
+        }
+      }
+    });
   }
 }
 
@@ -541,7 +620,11 @@ window.toggleTheme = function() {
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem(THEME_KEY, newTheme);
+  try {
+    localStorage.setItem(THEME_KEY, newTheme);
+  } catch (e) {
+    console.error('Failed to save theme setting to localStorage:', e);
+  }
   
   const icon = document.getElementById('theme-icon');
   const text = document.getElementById('theme-text');
@@ -550,6 +633,8 @@ window.toggleTheme = function() {
     text.textContent = newTheme === 'dark' ? 'Dark' : 'Light';
   }
 
+  // Destroy existing charts before re-render with new theme colors
+  if (window.destroyAllCharts) window.destroyAllCharts();
   if (window.renderView && window.appState) {
     window.renderView(window.appState.currentView);
   }
@@ -580,7 +665,12 @@ window.printPDF = function() {
 
 // Router Initialization
 document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+  let savedTheme = 'dark';
+  try {
+    savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
+  } catch (e) {
+    console.error('Failed to read theme from localStorage:', e);
+  }
   document.documentElement.setAttribute('data-theme', savedTheme);
   const icon = document.getElementById('theme-icon');
   const text = document.getElementById('theme-text');
