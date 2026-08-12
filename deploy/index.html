@@ -22,11 +22,14 @@
   <!-- Sidebar Navigation (Desktop + Mobile Drawer) -->
   <aside class="app-sidebar" id="app-sidebar">
     <div class="brand-header">
-      <div class="brand-icon">⚡</div>
-      <div>
-        <div class="brand-title">Life OS 1.0</div>
-        <div class="brand-subtitle">Executive Command Center</div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div class="brand-icon">⚡</div>
+        <div>
+          <div class="brand-title">Life OS 1.0</div>
+          <div class="brand-subtitle">Executive Command Center</div>
+        </div>
       </div>
+      <button class="sidebar-close-btn" onclick="toggleMobileDrawer(false)" aria-label="Close navigation drawer">&times;</button>
     </div>
 
     <nav class="nav-menu" id="nav-menu">
@@ -80,10 +83,6 @@
         <span class="nav-icon">🤖</span>
         <span class="nav-text">Practical AI Log</span>
       </a>
-      <a class="nav-item" data-view="college">
-        <span class="nav-icon">🎓</span>
-        <span class="nav-text">College Tasks</span>
-      </a>
       <a class="nav-item" data-view="reflection">
         <span class="nav-icon">📝</span>
         <span class="nav-text">Reflection & Scoreboard</span>
@@ -113,11 +112,11 @@
 
       <div class="top-actions">
         <!-- Theme Toggle Button -->
-        <button class="theme-toggle-btn" id="theme-btn" onclick="window.toggleTheme()">
-          <span id="theme-icon">🌙</span> <span id="theme-text">Dark</span>
+        <button class="theme-toggle-btn" id="theme-btn" onclick="window.toggleTheme()" title="Toggle Theme">
+          <span id="theme-icon">🌙</span> <span id="theme-text" class="hide-mobile">Dark</span>
         </button>
         <div class="pdf-export-dropdown" id="pdf-export-dropdown">
-          <button class="btn btn-secondary" onclick="document.getElementById('pdf-export-dropdown').classList.toggle('open')">📄 Export PDF ▾</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('pdf-export-dropdown').classList.toggle('open')">📄 <span class="hide-mobile">Export </span>PDF ▾</button>
           <div class="pdf-export-menu">
             <a href="public/printable_life_os.html" target="_blank" class="pdf-export-option" onclick="document.getElementById('pdf-export-dropdown').classList.remove('open')">
               🖨️ Print / Fill Template
@@ -127,7 +126,7 @@
             </a>
           </div>
         </div>
-        <button class="btn btn-primary" onclick="appState.quickLogModal()">+ Log Entry</button>
+        <button class="btn btn-primary" onclick="appState.quickLogModal()">+ <span class="hide-mobile">Log Entry</span><span class="show-mobile-only">Log</span></button>
       </div>
     </header>
 

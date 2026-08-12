@@ -168,9 +168,6 @@ window.renderView = function(viewName) {
     case 'ai':
       htmlContent = renderAI(data);
       break;
-    case 'college':
-      htmlContent = renderCollege(data);
-      break;
     case 'reflection':
       htmlContent = renderReflection(data);
       break;
@@ -189,6 +186,7 @@ window.renderView = function(viewName) {
   if (viewName === 'habits' && window.renderHabitCharts) window.renderHabitCharts(data);
   if (viewName === 'sales' && window.renderSalesCharts) window.renderSalesCharts(data);
   if (viewName === 'reflection' && window.renderRadarChart) window.renderRadarChart(data);
+  if (viewName === 'screentime' && window.renderScreenTimeCharts) window.renderScreenTimeCharts(data);
 };
 
 /* 1. DASHBOARD VIEW */
@@ -239,7 +237,7 @@ function renderDashboard(data) {
         <div style="background: var(--accent-cyan-glow); border: 1px solid rgba(6, 182, 212, 0.3); padding: 14px; border-radius: 8px; margin-bottom: 12px; font-style: italic; color: var(--accent-cyan);">
           "What is the single highest-leverage action I can take today that makes everything else easier or unnecessary?"
         </div>
-        <textarea id="leverage-input" class="form-textarea" rows="3" placeholder="Enter your key leverage action for today...">${esc(data.reflections?.daily?.priorityTomorrow || '')}</textarea>
+        <textarea id="leverage-input" class="form-textarea" rows="3" placeholder="Enter your key leverage action for today...">${data.reflections?.daily?.priorityTomorrow || ''}</textarea>
         <button class="btn btn-primary" style="margin-top: 10px;" onclick="saveLeverageAction()">Save Action</button>
       </div>
 
@@ -372,7 +370,7 @@ function renderCRM(data) {
       </div>
     </div>
 
-    <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+    <div class="action-bar">
       <button class="btn btn-primary" onclick="openAddLeadModal()">+ Add New Lead / Client</button>
       <button class="btn btn-secondary" onclick="openAddPaymentModal()">+ Log Client Payment</button>
     </div>
@@ -557,7 +555,7 @@ function renderCalendar(data) {
       <strong>1-CLICK GOOGLE INTEGRATION:</strong> Click "Google Calendar" next to any meeting or "Google Tasks" to seamlessly sync client appointments and reminders to your phone!
     </div>
 
-    <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+    <div class="action-bar">
       <button class="btn btn-primary" onclick="openAddMeetingModal()">+ Schedule Client Meeting</button>
       <button class="btn btn-secondary" onclick="openAddTaskModal()">+ Add Action Task</button>
     </div>
@@ -1008,7 +1006,16 @@ function renderFinance(data) {
             <span>Family & Household Bills</span> <span>₹${(expObj.bills || 0).toLocaleString()}</span>
           </div>
           <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+            <span>Family Support</span> <span>₹${(expObj.family || 0).toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
             <span>Health & Personal Care</span> <span>₹${(expObj.health || 0).toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+            <span>Subscriptions</span> <span>₹${(expObj.subscriptions || 0).toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">
+            <span>Miscellaneous</span> <span>₹${(expObj.misc || 0).toLocaleString()}</span>
           </div>
         </div>
       </div>
@@ -1018,12 +1025,12 @@ function renderFinance(data) {
           <div class="card-title">🧗 Financial Priority Ladder</div>
         </div>
         <ol style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; padding-left: 20px;">
-          <li style="color: var(--accent-emerald); font-weight: 600;">1. Track Expenses Daily (100% Execution)</li>
-          <li style="color: var(--accent-emerald); font-weight: 600;">2. Control Unnecessary Spending</li>
-          <li style="color: var(--accent-cyan); font-weight: 600;">3. Build Emergency Buffer (Target: ₹30,000)</li>
-          <li style="color: var(--accent-cyan); font-weight: 600;">4. Increase Income via Starz AI Commissions</li>
-          <li style="color: var(--text-secondary);">5. Build Dynamic Monthly Savings Buffer</li>
-          <li style="color: var(--text-secondary);">6. Invest When Financially Appropriate</li>
+          <li style="color: var(--accent-emerald); font-weight: 600;">Track Expenses Daily (100% Execution)</li>
+          <li style="color: var(--accent-emerald); font-weight: 600;">Control Unnecessary Spending</li>
+          <li style="color: var(--accent-cyan); font-weight: 600;">Build Emergency Buffer (Target: ₹30,000)</li>
+          <li style="color: var(--accent-cyan); font-weight: 600;">Increase Income via Starz AI Commissions</li>
+          <li style="color: var(--text-secondary);">Build Dynamic Monthly Savings Buffer</li>
+          <li style="color: var(--text-secondary);">Invest When Financially Appropriate</li>
         </ol>
       </div>
     </div>
@@ -1051,7 +1058,7 @@ function renderHealth(data) {
       <strong>MEDICAL DISCLAIMER:</strong> Medical treatment decisions should be made with a qualified healthcare professional. This tracker strictly logs observations, symptom changes, treatment adherence, and preparation questions for clinician visits.
     </div>
 
-    <div style="margin-bottom: 20px;">
+    <div class="action-bar">
       <button class="btn btn-primary" onclick="openAddHairModal()">+ Add Scalp Observation Log</button>
     </div>
 
@@ -1120,17 +1127,55 @@ function renderScreenTime(data) {
     return acc + diff;
   }, 0).toFixed(1);
 
+  const historyRows = entries.map(e => {
+    const screenHrs = parseFloat(e.screenTimeHrs) || 0;
+    const savedHrs = Math.max(0, baselineScreenHrs - screenHrs).toFixed(1);
+    const tags = (e.reclaimedAllocation || ['Sales Calls', 'Exercise']).map(t => `<span class="status-badge badge-active">${esc(t)}</span>`).join(' ');
+    return `
+      <tr>
+        <td><strong>${esc(e.date)}</strong></td>
+        <td style="color: ${screenHrs <= 2.0 ? 'var(--accent-emerald)' : 'var(--accent-amber)'}; font-weight: 700;">${screenHrs} hrs</td>
+        <td>${e.instagramMins || 0}m</td>
+        <td>${e.youtubeMins || 0}m</td>
+        <td>${e.gamingMins || 0}m</td>
+        <td style="color: var(--accent-emerald); font-weight: 700;">+${savedHrs} hrs</td>
+        <td>${tags}</td>
+      </tr>
+    `;
+  }).join('');
+
   return `
+    <div class="notice-box">
+      <strong>RECOVERY METRIC:</strong> Measuring screen time reduction (Target: &lt; 2.0 hrs/day vs 3.5h Baseline) and tracking saved hours diverted into sales calls, exercise, and content creation.
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="openAddScreenTimeModal()">+ Log Screen Time & App Usage</button>
+    </div>
+
+    <div class="grid-cols-2" style="margin-bottom: 24px;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">⏳ Screen Time Trend & Reclaimed Focus Hours</div>
+        </div>
+        <canvas id="chart-screentime-progress" height="190"></canvas>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📱 Distraction App Split (Instagram vs YouTube vs Gaming)</div>
+        </div>
+        <canvas id="chart-screentime-breakdown" height="190"></canvas>
+      </div>
+    </div>
+
     <div class="card" style="margin-bottom: 24px;">
       <div class="card-header">
         <div class="card-title">⏳ Screen Time Reclaimed Time Allocation</div>
       </div>
-      <div class="notice-box">
-        <strong>RECOVERY METRIC:</strong> Measuring whether reduced screen time becomes sleep, exercise, sales calls, learning, or YouTube output.
-      </div>
       <div class="grid-cols-2">
         <div style="background: var(--bg-card-header); padding: 16px; border-radius: 8px;">
-          <div style="font-weight: 700; color: var(--accent-cyan); margin-bottom: 8px;">Reclaimed Hours Allocation</div>
+          <div style="font-weight: 700; color: var(--accent-cyan); margin-bottom: 8px;">Reclaimed Focus Allocation</div>
           <ul style="font-size: 13px; display: flex; flex-direction: column; gap: 6px; padding-left: 16px; color: var(--text-primary);">
             <li>[✓] Morning Movement & Exercise (30 mins)</li>
             <li>[✓] Daily B2B Sales Prospecting (45 mins)</li>
@@ -1139,14 +1184,89 @@ function renderScreenTime(data) {
           </ul>
         </div>
         <div style="background: var(--bg-card-header); padding: 16px; border-radius: 8px;">
-          <div style="font-weight: 700; color: var(--accent-emerald); margin-bottom: 8px;">Weekly Recovered Balance (Dynamic)</div>
+          <div style="font-weight: 700; color: var(--accent-emerald); margin-bottom: 8px;">Total Recovered Focus Balance (Dynamic)</div>
           <div style="font-size: 28px; font-weight: 800; color: var(--accent-emerald);">+${totalReclaimedHrs} Hours</div>
-          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Total time diverted from scrolling/gaming into high-leverage actions based on actual logs.</div>
+          <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Total time diverted from scrolling/gaming into high-leverage actions based on actual daily logs.</div>
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">📊 Screen Time History & Reclaim Log</div>
+      </div>
+      <div class="table-responsive">
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Screen Time</th>
+              <th>Instagram</th>
+              <th>YouTube</th>
+              <th>Gaming</th>
+              <th>Focus Saved</th>
+              <th>Reclaimed Allocation</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${historyRows || '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">No entries logged.</td></tr>'}
+          </tbody>
+        </table>
       </div>
     </div>
   `;
 }
+
+window.openAddScreenTimeModal = function() {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const existingEntry = (window.appState.data.dailyEntries || []).find(e => e.date === todayStr) || {};
+
+  window.showCustomModal({
+    title: '⏳ Log Daily Screen Time & App Split',
+    fields: [
+      { name: 'date', label: 'Log Date', type: 'date', value: todayStr },
+      { name: 'screenTimeHrs', label: 'Recreational Screen Time (Hours)', type: 'number', step: 0.1, min: 0, max: 24, value: existingEntry.screenTimeHrs !== undefined ? existingEntry.screenTimeHrs : 1.8 },
+      { name: 'instagramMins', label: 'Instagram (Minutes)', type: 'number', min: 0, max: 1440, value: existingEntry.instagramMins !== undefined ? existingEntry.instagramMins : 45 },
+      { name: 'youtubeMins', label: 'YouTube (Minutes)', type: 'number', min: 0, max: 1440, value: existingEntry.youtubeMins !== undefined ? existingEntry.youtubeMins : 35 },
+      { name: 'gamingMins', label: 'Gaming (Minutes)', type: 'number', min: 0, max: 1440, value: existingEntry.gamingMins !== undefined ? existingEntry.gamingMins : 0 }
+    ],
+    onSubmit: (data) => {
+      const dateVal = window.validateDate(data.date);
+      const screenHrs = window.validateNumber(data.screenTimeHrs, 0, 24, 1.8);
+      const insta = window.validateInt(data.instagramMins, 0, 1440, 0);
+      const yt = window.validateInt(data.youtubeMins, 0, 1440, 0);
+      const gaming = window.validateInt(data.gamingMins, 0, 1440, 0);
+
+      let entry = (window.appState.data.dailyEntries || []).find(e => e.date === dateVal);
+      if (entry) {
+        entry.screenTimeHrs = screenHrs;
+        entry.instagramMins = insta;
+        entry.youtubeMins = yt;
+        entry.gamingMins = gaming;
+      } else {
+        entry = {
+          date: dateVal,
+          wakeTime: '08:00',
+          sleepTime: '00:00',
+          waterLiters: 3.0,
+          exerciseMins: 30,
+          cigarettes: 4,
+          screenTimeHrs: screenHrs,
+          instagramMins: insta,
+          youtubeMins: yt,
+          gamingMins: gaming,
+          salesCalls: 30,
+          salesMeets: 2,
+          revenue: 0,
+          reclaimedAllocation: ['Sales Calls', 'Exercise']
+        };
+        window.appState.data.dailyEntries.push(entry);
+      }
+      window.appState.saveData();
+      window.renderView('screentime');
+    }
+  });
+};
 
 /* 11. YOUTUBE VIEW WITH ADD & DELETE */
 function renderYouTube(data) {
@@ -1241,7 +1361,7 @@ function renderAI(data) {
       <strong>PRACTICAL AI RULES:</strong> Exclusively practical B2B sales automations, marketing tools, and prompt frameworks. Python is strictly excluded.
     </div>
 
-    <div style="margin-bottom: 20px;">
+    <div class="action-bar">
       <button class="btn btn-primary" onclick="openAddAIModal()">+ Log Practical AI Tool</button>
     </div>
 
@@ -1299,77 +1419,7 @@ window.openAddAIModal = function() {
 };
 window.openAddAILogModal = window.openAddAIModal;
 
-/* 13. COLLEGE VIEW WITH ADD & DELETE */
-function renderCollege(data) {
-  const collegeRows = (data.collegeTasks || []).map(c => `
-    <tr>
-      <td><strong>${esc(c.subject)}</strong></td>
-      <td>${esc(c.task)}</td>
-      <td>${esc(c.deadline)}</td>
-      <td><span class="status-badge ${c.priority === 'HIGH' ? 'badge-risk' : 'badge-paused'}">${esc(c.priority)}</span></td>
-      <td><span class="status-badge badge-notstarted">${esc(c.status)}</span></td>
-      <td>
-        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 10px; border-color: var(--accent-rose); color: var(--accent-rose);" onclick="window.appState.deleteCollegeTask('${c.id}')">Delete</button>
-      </td>
-    </tr>
-  `).join('');
-
-  return `
-    <div style="margin-bottom: 20px;">
-      <button class="btn btn-primary" onclick="openAddCollegeModal()">+ Add College Task</button>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">🎓 Lightweight College Task Tracker</div>
-      </div>
-      <div class="table-responsive">
-        <table class="custom-table">
-          <thead>
-            <tr>
-              <th>Subject</th>
-              <th>Assignment / Exam</th>
-              <th>Deadline</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${collegeRows || '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No college tasks pending.</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
-window.openAddCollegeModal = function() {
-  window.showCustomModal({
-    title: '🎓 Add College Task',
-    fields: [
-      { name: 'subject', label: 'Subject Name', type: 'text', required: true, placeholder: 'e.g. Business Management' },
-      { name: 'task', label: 'Assignment / Exam Detail', type: 'text', value: 'Project Report' },
-      { name: 'deadline', label: 'Deadline', type: 'date', value: new Date().toISOString().slice(0,10) },
-      { name: 'priority', label: 'Priority', type: 'select', value: 'MEDIUM', options: ['HIGH', 'MEDIUM', 'LOW'] }
-    ],
-    onSubmit: (data) => {
-      if (!data.subject) {
-        throw new Error('Subject Name is required.');
-      }
-      window.appState.addCollegeTask({
-        subject: data.subject,
-        task: data.task,
-        deadline: data.deadline,
-        priority: data.priority,
-        status: 'PENDING'
-      });
-      window.renderView('college');
-    }
-  });
-};
-
-/* 14. REFLECTION VIEW */
+/* 13. REFLECTION VIEW */
 function renderReflection(data) {
   const ref = data.reflections || {};
   const daily = ref.daily || {};

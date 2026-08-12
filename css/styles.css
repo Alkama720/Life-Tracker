@@ -534,6 +534,27 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-value, .top-title, .card-title, .ban
   display: block;
 }
 
+.sidebar-close-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+}
+
+.sidebar-close-btn:hover {
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+}
+
+.show-mobile-only {
+  display: none !important;
+}
+
 /* Responsive Media Queries */
 @media (max-width: 1024px) {
   .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
@@ -541,36 +562,158 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-value, .top-title, .card-title, .ban
 }
 
 @media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+
+  .show-mobile-only {
+    display: inline !important;
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .app-sidebar {
+    width: 280px;
+    max-width: 85vw;
+    height: 100vh;
+    height: 100dvh;
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 999;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1050;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5);
   }
 
   .app-sidebar.mobile-open {
     transform: translateX(0);
   }
 
-  .mobile-toggle-btn { display: flex; align-items: center; justify-content: center; }
+  .nav-menu {
+    padding-bottom: 90px;
+  }
+
+  .mobile-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
 
   .app-main {
     margin-left: 0;
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px));
   }
 
-  .top-bar { padding: 0 16px; }
-  .top-title { font-size: 16px; }
+  .top-bar {
+    padding: 0 10px;
+    height: 58px;
+    gap: 6px;
+  }
 
-  .content-container { padding: 16px; }
+  .top-left {
+    flex: 1;
+    min-width: 0;
+    gap: 8px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .top-title {
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 145px;
+  }
+
+  .top-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .content-container {
+    padding: 12px;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
 
   .grid-cols-4, .grid-cols-3, .grid-cols-2 {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .stat-widget {
+    padding: 14px;
+  }
+
+  .stat-value {
+    font-size: 22px;
   }
 
   .mobile-bottom-nav {
     display: flex;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  .btn { padding: 8px 12px; font-size: 11px; }
+  .btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  /* Make top-level action button rows fill screen width cleanly on mobile */
+  .action-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .action-bar > .btn {
+    flex: 0 0 auto;
+  }
+
+  .custom-table td div[style*="display: flex"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 4px !important;
+    width: auto !important;
+  }
+
+  .custom-table td div[style*="display: flex"] > .btn {
+    width: auto !important;
+    flex: 0 0 auto !important;
+  }
+
+  .custom-table th, .custom-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .notice-box, .notice-box-warning {
+    padding: 10px 12px;
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
 }
 
 /* PDF Export Dropdown */
@@ -632,18 +775,18 @@ h1, h2, h3, h4, h5, h6, .brand-title, .stat-value, .top-title, .card-title, .ban
 
 /* Extra-Small Phone Breakpoint (<375px) */
 @media (max-width: 374px) {
-  .top-bar { padding: 0 8px; height: 56px; }
-  .top-title { font-size: 13px; }
-  .top-actions { gap: 6px; }
-  .btn { padding: 6px 8px; font-size: 10px; }
-  .content-container { padding: 10px; }
+  .top-bar { padding: 0 6px; height: 54px; }
+  .top-title { font-size: 13px; max-width: 110px; }
+  .top-actions { gap: 4px; }
+  .btn { padding: 6px 8px; font-size: 11px; }
+  .content-container { padding: 8px; }
   .card { padding: 10px; }
-  .card-header { padding: 10px; }
-  .theme-toggle-btn { padding: 6px 10px; font-size: 11px; }
+  .card-header { padding: 6px 0; }
+  .theme-toggle-btn { padding: 6px 8px; font-size: 11px; }
   .pdf-export-menu { min-width: 180px; }
-  .custom-table th, .custom-table td { padding: 6px 8px; font-size: 11px; }
-  .mobile-bottom-nav { height: 56px; }
-  .mobile-nav-btn { font-size: 9px; padding: 4px 6px; }
+  .custom-table th, .custom-table td { padding: 6px 6px; font-size: 11px; }
+  .mobile-bottom-nav { height: calc(54px + env(safe-area-inset-bottom, 0px)); }
+  .mobile-nav-btn { font-size: 9px; padding: 4px 4px; }
   .mobile-nav-icon { font-size: 16px; }
 }
 

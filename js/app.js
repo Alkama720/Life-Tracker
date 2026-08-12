@@ -78,8 +78,7 @@ const defaultState = {
     { rank: 5, area: 'Peace of Mind', why: 'Sustained performance without burnout', outcome: 'Calm mental focus & clean wind-down', bottleneck: 'Substance drag & screen overstimulation', action: 'Nightly 3-min reflection journal', status: 'ACTIVE' },
     { rank: 6, area: 'AI Skills', why: 'Leverage multiplier for sales & workflow', outcome: 'Master practical AI tools for B2B workflow', bottleneck: 'Time scarcity & Python confusion', action: '30-min Tue/Thu practical AI tool test', status: 'ACTIVE' },
     { rank: 7, area: 'Faceless YouTube', why: 'Scalable asset for secondary cashflow', outcome: 'Publish 2 sustainable videos / month', bottleneck: 'Time constraints & scripting friction', action: 'Wed/Fri script & production block', status: 'NOT STARTED' },
-    { rank: 8, area: 'Content Creation', why: 'Personal authority & audience distribution', outcome: 'Repurpose sales/AI insights into posts', bottleneck: 'Prioritizing sales & health first', action: 'Batch 1 post on Sunday session', status: 'PAUSED' },
-    { rank: 9, area: 'College', why: 'Formal qualification completion', outcome: 'Maintain passing status without burnout', bottleneck: 'Time conflict with Starz AI work hours', action: 'Lightweight exam & assignment tracking', status: 'ACTIVE' }
+    { rank: 8, area: 'Content Creation', why: 'Personal authority & audience distribution', outcome: 'Repurpose sales/AI insights into posts', bottleneck: 'Prioritizing sales & health first', action: 'Batch 1 post on Sunday session', status: 'PAUSED' }
   ],
 
   weeklySchedule: [
@@ -166,11 +165,6 @@ const defaultState = {
     { id: 'ai_2', date: '2026-08-06', topic: 'Automated LinkedIn Lead Scraper (No-Code)', category: 'Automation', resource: 'Make.com + PhantomBuster', takeaway: 'Enrich lead profiles automatically into Google Sheets', built: 'Built lead enrichment sheet', applied: 'Saved 45 mins daily prospecting time' }
   ],
 
-  collegeTasks: [
-    { id: 'col_1', subject: 'Business Management', task: 'Final Year Case Study Report', deadline: '2026-08-25', priority: 'MEDIUM', status: 'PENDING' },
-    { id: 'col_2', subject: 'Financial Accounting', task: 'Mid-Semester Exam Prep', deadline: '2026-09-10', priority: 'HIGH', status: 'PENDING' }
-  ],
-
   reflections: {
     daily: { accomplishments: 'Logged 34 calls, closed 1 demo, hit 3.0L water', avoided: 'Morning 8:30am exercise session', why: 'Slept late (12:30am) due to late evening phone scroll', priorityTomorrow: 'Sleep strictly at 12:00 AM tonight to safeguard 8am wake' },
     weekly: { worked: 'Call consistency (30+ calls/day) directly drove 3 sales closes this week', wasted: 'Instagram scrolling between 8:00pm-9:30pm', stop: 'No social media after reaching home at 8pm', continue: '30-min evening walking routine', nextObjective: 'Close ₹20,000+ in sales commissions next week' },
@@ -211,11 +205,20 @@ class AppState {
       if (!parsed.youtubePipeline || !Array.isArray(parsed.youtubePipeline)) parsed.youtubePipeline = defaultState.youtubePipeline;
       if (!parsed.aiLogs || !Array.isArray(parsed.aiLogs)) parsed.aiLogs = defaultState.aiLogs;
       if (!parsed.hairLogs || !Array.isArray(parsed.hairLogs)) parsed.hairLogs = defaultState.hairLogs;
-      if (!parsed.collegeTasks || !Array.isArray(parsed.collegeTasks)) parsed.collegeTasks = defaultState.collegeTasks;
       if (!parsed.dailyEntries || !Array.isArray(parsed.dailyEntries)) parsed.dailyEntries = defaultState.dailyEntries;
       if (!parsed.salesLogs || !Array.isArray(parsed.salesLogs)) parsed.salesLogs = defaultState.salesLogs;
       if (!parsed.reflections) parsed.reflections = defaultState.reflections;
       if (!parsed.finance) parsed.finance = defaultState.finance;
+
+      // Clean XSS strings in loaded reflections
+      if (parsed.reflections && parsed.reflections.daily && parsed.reflections.daily.priorityTomorrow) {
+        if (parsed.reflections.daily.priorityTomorrow.includes('<') || parsed.reflections.daily.priorityTomorrow.includes('XSS')) {
+          parsed.reflections.daily.priorityTomorrow = 'Sleep strictly at 12:00 AM tonight to safeguard 8am wake';
+        }
+      }
+
+      // Automatically persist cleaned reflections
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       return parsed;
     } catch (e) {
       console.error('Failed to parse state from localStorage, resetting to default', e);
@@ -463,35 +466,6 @@ class AppState {
     });
   }
 
-  addCollegeTask(colObj) {
-    const subject = validateString(colObj.subject, 100);
-    if (!subject) return;
-
-    const sanitizedTask = {
-      id: 'col_' + Date.now(),
-      subject: subject,
-      task: validateString(colObj.task, 200, 'Assignment'),
-      deadline: validateDate(colObj.deadline),
-      priority: validateString(colObj.priority, 10, 'MEDIUM').toUpperCase(),
-      status: validateString(colObj.status, 20, 'PENDING').toUpperCase()
-    };
-
-    this.data.collegeTasks.push(sanitizedTask);
-    this.saveData();
-  }
-
-  deleteCollegeTask(id) {
-    window.showConfirmModal({
-      title: '⚠️ Delete College Task',
-      message: 'Are you sure you want to delete this college task?',
-      onConfirm: () => {
-        this.data.collegeTasks = this.data.collegeTasks.filter(c => String(c.id) !== String(id));
-        this.saveData();
-        if (window.renderView) window.renderView('college');
-      }
-    });
-  }
-
   createGCalUrl(title, details, dateStr, timeStr) {
     const validDate = validateDate(dateStr);
     const dateFormatted = validDate.replace(/-/g, '');
@@ -716,7 +690,6 @@ document.addEventListener('DOMContentLoaded', () => {
       screentime: 'Screen Time Recovery & Time Reclaim Log',
       youtube: 'Faceless YouTube Pipeline & Analytics',
       ai: 'Practical AI Learning System',
-      college: 'College Task Tracker',
       reflection: 'Multi-Tier Reflection & Life Scoreboard',
       settings: 'Privacy, Data Control & Backup'
     };

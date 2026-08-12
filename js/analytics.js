@@ -59,15 +59,16 @@ function getChartColors() {
   };
 }
 
-window.renderDashboardCharts = function(data) {
+/**
+ * Internal helper: renders cigarette + screen time line charts on the given canvas IDs.
+ */
+function _renderTrendCharts(data, cigsCanvasId, screenCanvasId) {
   const entries = data.dailyEntries || [];
   const dates = entries.map(e => e.date ? e.date.slice(5) : '');
   const cigs = entries.map(e => e.cigarettes || 0);
   const screens = entries.map(e => e.screenTimeHrs || 0);
   const c = getChartColors();
 
-  // Cigarettes Chart
-  const cigsCanvasId = document.getElementById('chart-cigs') ? 'chart-cigs' : 'chart-habits-cigs';
   createChart(cigsCanvasId, {
     type: 'line',
     data: {
@@ -92,8 +93,6 @@ window.renderDashboardCharts = function(data) {
     }
   });
 
-  // Screen Time Chart
-  const screenCanvasId = document.getElementById('chart-screen') ? 'chart-screen' : 'chart-habits-screen';
   createChart(screenCanvasId, {
     type: 'line',
     data: {
@@ -117,10 +116,14 @@ window.renderDashboardCharts = function(data) {
       }
     }
   });
+}
+
+window.renderDashboardCharts = function(data) {
+  _renderTrendCharts(data, 'chart-cigs', 'chart-screen');
 };
 
 window.renderHabitCharts = function(data) {
-  window.renderDashboardCharts(data);
+  _renderTrendCharts(data, 'chart-habits-cigs', 'chart-habits-screen');
 };
 
 window.renderSalesCharts = function(data) {
@@ -180,6 +183,72 @@ window.renderRadarChart = function(data) {
           pointLabels: { color: c.textColor, font: { family: 'Outfit', size: 11, weight: '600' } },
           ticks: { display: false, min: 0, max: 10 }
         }
+      }
+    }
+  });
+};
+
+window.renderScreenTimeCharts = function(data) {
+  const entries = data.dailyEntries || [];
+  const dates = entries.map(e => e.date ? e.date.slice(5) : '');
+  const screens = entries.map(e => e.screenTimeHrs || 0);
+  const reclaimed = entries.map(e => Math.max(0, 3.5 - (e.screenTimeHrs || 0)).toFixed(1));
+  const insta = entries.map(e => e.instagramMins || 0);
+  const yt = entries.map(e => e.youtubeMins || 0);
+  const gaming = entries.map(e => e.gamingMins || 0);
+  const c = getChartColors();
+
+  createChart('chart-screentime-progress', {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        {
+          label: 'Rec Screen Time (Hrs)',
+          data: screens,
+          borderColor: c.cyan,
+          backgroundColor: c.cyan + '20',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2.5
+        },
+        {
+          label: 'Reclaimed Focus Hours Saved (+Hrs)',
+          data: reclaimed,
+          borderColor: c.emerald,
+          backgroundColor: c.emerald + '20',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2.5
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
+      scales: {
+        x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
+        y: { min: 0, ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
+      }
+    }
+  });
+
+  createChart('chart-screentime-breakdown', {
+    type: 'bar',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'Instagram (mins)', data: insta, backgroundColor: c.rose },
+        { label: 'YouTube (mins)', data: yt, backgroundColor: c.amber },
+        { label: 'Gaming (mins)', data: gaming, backgroundColor: c.purple }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: c.textColor, font: { family: 'Outfit', weight: '600' } } } },
+      scales: {
+        x: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } },
+        y: { ticks: { color: c.textColor, font: { family: 'Inter' } }, grid: { color: c.gridColor } }
       }
     }
   });
